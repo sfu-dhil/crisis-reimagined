@@ -1,0 +1,93 @@
+services:
+  db:
+    container_name: reimagining_db
+    image: postgis/postgis:18-3.6
+    # postgis only supports the linux/amd64 platform
+    platform: linux/amd64
+    ports:
+      - "15432:5432"
+    volumes:
+      - .data/postgres:/var/lib/postgresql
+    environment:
+      POSTGRES_DB: reimagining
+      POSTGRES_USER: reimagining
+      POSTGRES_PASSWORD: password
+    healthcheck:
+      test: pg_isready -U reimagining -d reimagining && psql -U reimagining -d reimagining -c 'SELECT 1;' || exit 1
+      interval: 2s
+      retries: 120
+
+  nginx:
+    container_name: reimagining_nginx
+    image: nginx:1.29-alpine
+    volumes:
+      # config
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf
+      # mount app static content
+      # - .data/static:/static:ro # do not mount in development mode
+    ports:
+      - "8080:80"
+    healthcheck:
+      test: service nginx status || exit 1
+      interval: 2s
+      retries: 120
+    depends_on:
+      app:
+        condition: service_healthy
+
+  vite:
+    container_name: reimagining_vite
+    build:
+      context: .
+      target: reimagining-vite
+    command: yarn dev
+    ports:
+      - "5173:5173"
+    volumes:
+      # code for development
+      - ./reimagining_vite:/app
+
+      # use the container's node_modules folders (don't override with local dev)
+      - /app/node_modules
+
+  app:
+    container_name: reimagining_app
+    # image: ghcr.io/sfu-dhil/reimagining
+    build:
+      context: .
+      target: reimagining
+    ports:
+      - "8888:80"
+    volumes:
+      # code for development
+      - .:/app
+
+      # # persist static outside of container so it can be shared with nginx
+      # - .data/static:/app/static # do not mount in development mode
+      # use the container's node_modules folders (don't override with local dev)
+      - /app/node_modules
+    environment:
+      DEBUG: True
+      DB_HOST: db
+      DB_NAME: reimagining
+      DB_USER: reimagining
+      DB_PASSWORD: password
+      EMAIL_HOST: mail
+      EMAIL_HOST_USER: reimagining
+      EMAIL_HOST_PASSWORD: password
+      MEDIA_FOLDER_UID: 101
+      MEDIA_FOLDER_GID: 101
+      GUNICORN_CMD_ARGS: --reload --workers=3 --log-level info
+    healthcheck:
+      test: curl --fail http://localhost/health_check/ || exit 1
+      interval: 2s
+      retries: 120
+    depends_on:
+      db:
+        condition: service_healthy
+
+  mail:
+    container_name: reimagining_mail
+    image: jcalonso/mailhog:v1.0.1
+    ports:
+      - "8025:8025"

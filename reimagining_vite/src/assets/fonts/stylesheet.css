@@ -1,0 +1,176 @@
+@font-face {
+    font-family: 'Dazzle Unicase';
+    src: url('DazzleUnicase-Light.eot');
+    src: url('DazzleUnicase-Light.eot?#iefix') format('embedded-opentype'),
+        url('DazzleUnicase-Light.woff2') format('woff2'),
+        url('DazzleUnicase-Light.woff') format('woff'),
+        url('DazzleUnicase-Light.ttf') format('truetype'),
+        url('DazzleUnicase-Light.svg#DazzleUnicase-Light') format('svg');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'DazzleUnicase-Light';
+    src: url('DazzleUnicase-Light.eot');
+    src: url('DazzleUnicase-Light.eot?#iefix') format('embedded-opentype'),
+        url('DazzleUnicase-Light.woff2') format('woff2'),
+        url('DazzleUnicase-Light.woff') format('woff'),
+        url('DazzleUnicase-Light.ttf') format('truetype'),
+        url('DazzleUnicase-Light.svg#DazzleUnicase-Light') format('svg');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Dolph YY';
+    src: url('DolphYY-Light.eot');
+    src: url('DolphYY-Light.eot?#iefix') format('embedded-opentype'),
+        url('DolphYY-Light.woff2') format('woff2'),
+        url('DolphYY-Light.woff') format('woff'),
+        url('DolphYY-Light.ttf') format('truetype'),
+        url('DolphYY-Light.svg#DolphYY-Light') format('svg');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'DolphYY-Light';
+    src: url('DolphYY-Light.eot');
+    src: url('DolphYY-Light.eot?#iefix') format('embedded-opentype'),
+        url('DolphYY-Light.woff2') format('woff2'),
+        url('DolphYY-Light.woff') format('woff'),
+        url('DolphYY-Light.ttf') format('truetype'),
+        url('DolphYY-Light.svg#DolphYY-Light') format('svg');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Dolph YY';
+    src: url('DolphYY-LightItalic.eot');
+    src: url('DolphYY-LightItalic.eot?#iefix') format('embedded-opentype'),
+        url('DolphYY-LightItalic.woff2') format('woff2'),
+        url('DolphYY-LightItalic.woff') format('woff'),
+        url('DolphYY-LightItalic.ttf') format('truetype'),
+        url('DolphYY-LightItalic.svg#DolphYY-LightItalic') format('svg');
+    font-weight: 300;
+    font-style: italic;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'DolphYY-LightItalic';
+    src: url('DolphYY-LightItalic.eot');
+    src: url('DolphYY-LightItalic.eot?#iefix') format('embedded-opentype'),
+        url('DolphYY-LightItalic.woff2') format('woff2'),
+        url('DolphYY-LightItalic.woff') format('woff'),
+        url('DolphYY-LightItalic.ttf') format('truetype'),
+        url('DolphYY-LightItalic.svg#DolphYY-LightItalic') format('svg');
+    font-weight: 300;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'GroteskRemix Monospace';
+    src: url('GroteskRemixMonospace-medium.eot');
+    src: url('GroteskRemixMonospace-medium.eot?#iefix') format('embedded-opentype'),
+        url('GroteskRemixMonospace-medium.woff2') format('woff2'),
+        url('GroteskRemixMonospace-medium.woff') format('woff'),
+        url('GroteskRemixMonospace-medium.ttf') format('truetype'),
+        url('GroteskRemixMonospace-medium.svg#GroteskRemixMonospace-medium') format('svg');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'GroteskRemixMonospace-medium';
+    src: url('GroteskRemixMonospace-medium.eot');
+    src: url('GroteskRemixMonospace-medium.eot?#iefix') format('embedded-opentype'),
+        url('GroteskRemixMonospace-medium.woff2') format('woff2'),
+        url('GroteskRemixMonospace-medium.woff') format('woff'),
+        url('GroteskRemixMonospace-medium.ttf') format('truetype'),
+        url('GroteskRemixMonospace-medium.svg#GroteskRemixMonospace-medium') format('svg');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'GroteskRemix Monospace';
+    src: url('GroteskRemixMonospace-regular.eot');
+    src: url('GroteskRemixMonospace-regular.eot?#iefix') format('embedded-opentype'),
+        url('GroteskRemixMonospace-regular.woff2') format('woff2'),
+        url('GroteskRemixMonospace-regular.woff') format('woff'),
+        url('GroteskRemixMonospace-regular.ttf') format('truetype'),
+        url('GroteskRemixMonospace-regular.svg#GroteskRemixMonospace-regular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'GroteskRemixMonospace-regular';
+    src: url('GroteskRemixMonospace-regular.eot');
+    src: url('GroteskRemixMonospace-regular.eot?#iefix') format('embedded-opentype'),
+        url('GroteskRemixMonospace-regular.woff2') format('woff2'),
+        url('GroteskRemixMonospace-regular.woff') format('woff'),
+        url('GroteskRemixMonospace-regular.ttf') format('truetype'),
+        url('GroteskRemixMonospace-regular.svg#GroteskRemixMonospace-regular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+
+@font-face {
+    font-family: 'GroteskRemix Monospace';
+    src: url('GroteskRemixMonospace.eot');
+    src: url('GroteskRemixMonospace.eot?#iefix') format('embedded-opentype'),
+        url('GroteskRemixMonospace.woff2') format('woff2'),
+        url('GroteskRemixMonospace.woff') format('woff'),
+        url('GroteskRemixMonospace.ttf') format('truetype'),
+        url('GroteskRemixMonospace.svg#GroteskRemixMonospace') format('svg');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'GroteskRemixMonospace';
+    src: url('GroteskRemixMonospace.eot');
+    src: url('GroteskRemixMonospace.eot?#iefix') format('embedded-opentype'),
+        url('GroteskRemixMonospace.woff2') format('woff2'),
+        url('GroteskRemixMonospace.woff') format('woff'),
+        url('GroteskRemixMonospace.ttf') format('truetype'),
+        url('GroteskRemixMonospace.svg#GroteskRemixMonospace') format('svg');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Myriad Pro';
+    src: url('MyriadPro-Regular.eot');
+    src: url('MyriadPro-Regular.eot?#iefix') format('embedded-opentype'),
+        url('MyriadPro-Regular.woff2') format('woff2'),
+        url('MyriadPro-Regular.woff') format('woff'),
+        url('MyriadPro-Regular.ttf') format('truetype'),
+        url('MyriadPro-Regular.svg#MyriadPro-Regular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'MyriadPro-Regular';
+    src: url('MyriadPro-Regular.eot');
+    src: url('MyriadPro-Regular.eot?#iefix') format('embedded-opentype'),
+        url('MyriadPro-Regular.woff2') format('woff2'),
+        url('MyriadPro-Regular.woff') format('woff'),
+        url('MyriadPro-Regular.ttf') format('truetype'),
+        url('MyriadPro-Regular.svg#MyriadPro-Regular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+

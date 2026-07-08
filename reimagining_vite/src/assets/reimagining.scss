@@ -1,0 +1,15 @@
+// bootstrap
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+// fontawesome
+@import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
+@import '@fortawesome/fontawesome-free/css/solid.min.css';
+
+@import './fonts/stylesheet.css';
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+}
