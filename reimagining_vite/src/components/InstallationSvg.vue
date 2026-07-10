@@ -32,22 +32,6 @@ onMounted(() => {
     })
     panZoomInstance.value.on('panstart', (e) => grabbing.value = true)
     panZoomInstance.value.on('panend', (e) => grabbing.value = false)
-    // nextTick(() => {
-    //   // console.log('initialZoom.value', initialZoom.value)
-    //   // console.log('Math.max(svgRef.value.clientHeight / (SVG_HEIGHT - SVG_MARGIN_TOP - SVG_MARGIN_BOTTOM), 0.1)', Math.max(svgRef.value.clientHeight / (SVG_HEIGHT - SVG_MARGIN_TOP - SVG_MARGIN_BOTTOM), 0.1))
-    //   // panZoomInstance.value.zoomTo(
-    //   //   initialX.value || 0,
-    //   //   initialY.value || SVG_MARGIN_TOP,
-    //   //   initialZoom.value || Math.max(svgRef.value.clientHeight / (SVG_HEIGHT - SVG_MARGIN_TOP - SVG_MARGIN_BOTTOM), 0.1),
-    //   // )
-    //   // panZoomInstance.value.on('transform', (e) => {
-    //   //   const {scale, x, y} = e.getTransform()
-    //   //   console.log('e.getTransform()', e.getTransform())
-    //   //   initialX.value = -x
-    //   //   initialY.value = -y
-    //   //   initialZoom.value = scale
-    //   // })
-    // })
   }
 })
 onUnmounted(() => {
@@ -891,24 +875,11 @@ onUnmounted(() => {
         @click="() => useDisplayStore().showKnowledgeQuestionnaireModal()"
       >
         <title>Click to fill out the knowledge questionnaire</title>
-        <g class="questionnaire-paper">
-          <image href="../assets/knowledge-questionnaire.svg" width="300" height="800" />
-        </g>
-        <g class="questionnaire-paper">
-          <image href="../assets/knowledge-questionnaire.svg" width="300" height="800" />
-        </g>
-        <g class="questionnaire-paper">
-          <image href="../assets/knowledge-questionnaire.svg" width="300" height="800" />
-        </g>
-        <g class="questionnaire-paper">
-          <image href="../assets/knowledge-questionnaire.svg" width="300" height="800" />
-        </g>
-        <g class="questionnaire-paper">
-          <image href="../assets/knowledge-questionnaire.svg" width="300" height="800" />
-        </g>
-        <g transform="translate(142, 10)" width="16" height="16" fill="red" class="bi bi-pin-angle-fill" viewBox="0 0 16 16">
-          <path d="M9.828.722a.5.5 0 0 1 .354.146l4.95 4.95a.5.5 0 0 1 0 .707c-.48.48-1.072.588-1.503.588-.177 0-.335-.018-.46-.039l-3.134 3.134a6 6 0 0 1 .16 1.013c.046.702-.032 1.687-.72 2.375a.5.5 0 0 1-.707 0l-2.829-2.828-3.182 3.182c-.195.195-1.219.902-1.414.707s.512-1.22.707-1.414l3.182-3.182-2.828-2.829a.5.5 0 0 1 0-.707c.688-.688 1.673-.767 2.375-.72a6 6 0 0 1 1.013.16l3.134-3.133a3 3 0 0 1-.04-.461c0-.43.108-1.022.589-1.503a.5.5 0 0 1 .353-.146"/>
-        </g>
+        <image class="takeaway" href="../assets/knowledge-questionnaire.svg" width="300" height="800" transform="translate(0 0)" />
+        <image class="takeaway" href="../assets/knowledge-questionnaire.svg" width="300" height="800" transform="translate(1 1)" />
+        <image class="takeaway" href="../assets/knowledge-questionnaire.svg" width="300" height="800" transform="translate(2 2)" />
+        <image class="takeaway" href="../assets/knowledge-questionnaire.svg" width="300" height="800" transform="translate(3 3)" />
+        <image class="takeaway" href="../assets/knowledge-questionnaire.svg" width="300" height="800" transform="translate(4 4)" />
       </g>
       <g
         class="responses knowledge-responses"
@@ -916,24 +887,11 @@ onUnmounted(() => {
         @click="() => useDisplayStore().showKnowledgeResponsesModal()"
       >
         <title>Click to view the knowledge takeaways</title>
-        <g class="responses-paper">
-          <image href="../assets/knowledge-questionnaire.svg" width="300" height="800" />
-        </g>
-        <g class="responses-paper">
-          <image href="../assets/knowledge-questionnaire.svg" width="300" height="800" />
-        </g>
-        <g class="responses-paper">
-          <image href="../assets/knowledge-questionnaire.svg" width="300" height="800" />
-        </g>
-        <g class="responses-paper">
-          <image href="../assets/knowledge-questionnaire.svg" width="300" height="800" />
-        </g>
-        <g class="responses-paper">
-          <image href="../assets/knowledge-questionnaire.svg" width="300" height="800" />
-        </g>
-        <g transform="translate(142, 10)" width="16" height="16" fill="red" class="bi bi-pin-angle-fill" viewBox="0 0 16 16">
-          <path d="M9.828.722a.5.5 0 0 1 .354.146l4.95 4.95a.5.5 0 0 1 0 .707c-.48.48-1.072.588-1.503.588-.177 0-.335-.018-.46-.039l-3.134 3.134a6 6 0 0 1 .16 1.013c.046.702-.032 1.687-.72 2.375a.5.5 0 0 1-.707 0l-2.829-2.828-3.182 3.182c-.195.195-1.219.902-1.414.707s.512-1.22.707-1.414l3.182-3.182-2.828-2.829a.5.5 0 0 1 0-.707c.688-.688 1.673-.767 2.375-.72a6 6 0 0 1 1.013.16l3.134-3.133a3 3 0 0 1-.04-.461c0-.43.108-1.022.589-1.503a.5.5 0 0 1 .353-.146"/>
-        </g>
+        <image class="takeaway" href="../assets/knowledge-questionnaire.svg" width="300" height="800" transform="translate(0 0)" />
+        <image class="takeaway" href="../assets/knowledge-questionnaire.svg" width="300" height="800" transform="translate(1 1)" />
+        <image class="takeaway" href="../assets/knowledge-questionnaire.svg" width="300" height="800" transform="translate(2 2)" />
+        <image class="takeaway" href="../assets/knowledge-questionnaire.svg" width="300" height="800" transform="translate(3 3)" />
+        <image class="takeaway" href="../assets/knowledge-questionnaire.svg" width="300" height="800" transform="translate(4 4)" />
       </g>
     </g>
   </svg>
@@ -960,62 +918,39 @@ svg {
     .bi.bi-pin-angle-fill {
       filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));
     }
-    .responses-paper,
-    .questionnaire-paper {
+    .takeaway {
       cursor: pointer;
       transition: all 0.8s ease-out;
       filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));
-      transform-origin: center -5%;
+      transform-origin: 150 20;
       &:nth-child(2) {
-        transform: rotate(-1.5deg);
+        transform: rotate(5deg);
       }
       &:nth-child(3) {
-        transform: rotate(-1deg);
+        transform: rotate(-5deg);
       }
       &:nth-child(4) {
-        transform: rotate(-0.5deg);
+        transform: rotate(2deg);
       }
       &:nth-child(5) {
-        transform: rotate(0deg);
+        transform: rotate(-2deg);
       }
       &:nth-child(6) {
         transform: rotate(0.5deg);
       }
     }
-    &:hover {
-      .questionnaire-paper {
-        &:nth-child(2) {
-          transform: rotate(-1.6deg);
-        }
-        &:nth-child(3) {
-          transform: rotate(-1.1deg);
-        }
-        &:nth-child(4) {
-          transform: rotate(-0.6deg);
-        }
-        &:nth-child(5) {
-          transform: rotate(-0.2deg);
-        }
-        &:nth-child(6) {
-          transform: rotate(-5deg);
-        }
+  }
+  .questionnaire:hover {
+    .takeaway {
+      &:nth-child(6) {
+        transform: translate(5%, 20%) rotate(-10deg);
       }
-      .responses-paper {
-        &:nth-child(2) {
-          transform: rotate(-1.4deg);
-        }
-        &:nth-child(3) {
-          transform: rotate(-0.9deg);
-        }
-        &:nth-child(4) {
-          transform: rotate(-0.4deg);
-        }
-        &:nth-child(5) {
-          transform: rotate(0.2deg);
-        }
-        &:nth-child(6) {
-          transform: rotate(0.8deg);
-        }
+    }
+  }
+  .responses:hover {
+    .takeaway {
+      &:nth-child(6) {
+        transform: translate(-5%, 20%) rotate(10deg);
       }
     }
   }
