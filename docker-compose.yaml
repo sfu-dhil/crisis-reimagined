@@ -1,6 +1,6 @@
 services:
   db:
-    container_name: reimagining_db
+    container_name: crisis_reimagined_db
     image: postgis/postgis:18-3.6
     # postgis only supports the linux/amd64 platform
     platform: linux/amd64
@@ -9,16 +9,16 @@ services:
     volumes:
       - .data/postgres:/var/lib/postgresql
     environment:
-      POSTGRES_DB: reimagining
-      POSTGRES_USER: reimagining
+      POSTGRES_DB: crisis_reimagined
+      POSTGRES_USER: crisis_reimagined
       POSTGRES_PASSWORD: password
     healthcheck:
-      test: pg_isready -U reimagining -d reimagining && psql -U reimagining -d reimagining -c 'SELECT 1;' || exit 1
+      test: pg_isready -U crisis_reimagined -d crisis_reimagined && psql -U crisis_reimagined -d crisis_reimagined -c 'SELECT 1;' || exit 1
       interval: 2s
       retries: 120
 
   nginx:
-    container_name: reimagining_nginx
+    container_name: crisis_reimagined_nginx
     image: nginx:1.29-alpine
     volumes:
       # config
@@ -36,26 +36,28 @@ services:
         condition: service_healthy
 
   vite:
-    container_name: reimagining_vite
+    container_name: crisis_reimagined_vite
     build:
       context: .
-      target: reimagining-vite
+      target: crisis-reimagined-vite
     command: yarn dev
     ports:
       - "5173:5173"
     volumes:
       # code for development
-      - ./reimagining_vite:/app
+      - ./crisis_reimagined_vite:/app
 
       # use the container's node_modules folders (don't override with local dev)
       - /app/node_modules
+    environment:
+      NODE_OPTIONS: --max-old-space-size=8192
 
   app:
-    container_name: reimagining_app
-    # image: ghcr.io/sfu-dhil/reimagining
+    container_name: crisis_reimagined_app
+    # image: ghcr.io/sfu-dhil/crisis-reimagined
     build:
       context: .
-      target: reimagining
+      target: crisis-reimagined
     ports:
       - "8888:80"
     volumes:
@@ -69,11 +71,11 @@ services:
     environment:
       DEBUG: True
       DB_HOST: db
-      DB_NAME: reimagining
-      DB_USER: reimagining
+      DB_NAME: crisis_reimagined
+      DB_USER: crisis_reimagined
       DB_PASSWORD: password
       EMAIL_HOST: mail
-      EMAIL_HOST_USER: reimagining
+      EMAIL_HOST_USER: crisis_reimagined
       EMAIL_HOST_PASSWORD: password
       MEDIA_FOLDER_UID: 101
       MEDIA_FOLDER_GID: 101
@@ -87,7 +89,7 @@ services:
         condition: service_healthy
 
   mail:
-    container_name: reimagining_mail
+    container_name: crisis_reimagined_mail
     image: jcalonso/mailhog:v1.0.1
     ports:
       - "8025:8025"

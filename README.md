@@ -1,5 +1,5 @@
-[![Docker Image Latest Badge](https://ghcr-badge.egpl.dev/sfu-dhil/reimagining/latest_tag?trim=major&label=latest)](https://github.com/sfu-dhil/reimagining/pkgs/container/reimagining)
-[![Docker Image Size badge](https://ghcr-badge.egpl.dev/sfu-dhil/reimagining/size)](https://github.com/sfu-dhil/reimagining/pkgs/container/reimagining)
+[![Docker Image Latest Badge](https://ghcr-badge.egpl.dev/sfu-dhil/crisis-reimagined/latest_tag?trim=major&label=latest)](https://github.com/sfu-dhil/crisis-reimagined/pkgs/container/crisis-reimagined)
+[![Docker Image Size badge](https://ghcr-badge.egpl.dev/sfu-dhil/crisis-reimagined/size)](https://github.com/sfu-dhil/crisis-reimagined/pkgs/container/crisis-reimagined)
 
 # Reimagining the Public University - Digital Edition
 
@@ -11,32 +11,32 @@
 
     docker compose up -d --build
 
-reimagining Frontend will be available at `http://localhost:8080/`
-reimagining Admin will be available at `http://localhost:8080/admin/`
+crisis_reimagined Frontend will be available at `http://localhost:8080/`
+crisis_reimagined Admin will be available at `http://localhost:8080/admin/`
 
 ### Install/Switch the admin theme
 
     # Bootstrap
-    docker exec -it reimagining_app python manage.py loaddata admin_interface_theme_bootstrap.json
+    docker exec -it crisis_reimagined_app python manage.py loaddata admin_interface_theme_bootstrap.json
 
     # Django
-    docker exec -it reimagining_app python manage.py loaddata  admin_interface_theme_django.json
+    docker exec -it crisis_reimagined_app python manage.py loaddata  admin_interface_theme_django.json
 
     # Foundation
-    docker exec -it reimagining_app python manage.py loaddata  admin_interface_theme_foundation.json
+    docker exec -it crisis_reimagined_app python manage.py loaddata  admin_interface_theme_foundation.json
 
     # U.S. Web Design Standards
-    docker exec -it reimagining_app python manage.py loaddata  admin_interface_theme_uswds.json
+    docker exec -it crisis_reimagined_app python manage.py loaddata  admin_interface_theme_uswds.json
 
 ### Create your superuser
 
-    docker exec -it reimagining_app python manage.py createsuperuser
+    docker exec -it crisis_reimagined_app python manage.py createsuperuser
 
 Enter `username`, `email`, and `password` as prompted
 
 example:
 
-    docker exec -it reimagining_app python manage.py createsuperuser --username="admin" --email="dhil@sfu.ca"
+    docker exec -it crisis_reimagined_app python manage.py createsuperuser --username="admin" --email="dhil@sfu.ca"
 
 ## General Usage
 
@@ -54,11 +54,11 @@ example:
 
 ### Viewing logs (each container)
 
-    docker logs -f reimagining_app
-    docker logs -f reimagining_vite
-    docker logs -f reimagining_nginx
-    docker logs -f reimagining_db
-    docker logs -f reimagining_mail
+    docker logs -f crisis_reimagined_app
+    docker logs -f crisis_reimagined_vite
+    docker logs -f crisis_reimagined_nginx
+    docker logs -f crisis_reimagined_db
+    docker logs -f crisis_reimagined_mail
 
 ### Accessing the Application
 
@@ -68,12 +68,12 @@ example:
 
 Command line:
 
-    PGPASSWORD=password psql docker exec -it reimagining_db --username=reimagining reimagining
+    PGPASSWORD=password psql docker exec -it crisis_reimagined_db --username=crisis-reimagined crisis-reimagined
 
 Through a database management tool:
 - Host:`127.0.0.1`
 - Port: `15432`
-- Username: `reimagining`
+- Username: `crisis-reimagined`
 - Password: `password`
 
 ### Accessing Mailhog (catches emails sent by the app)
@@ -84,24 +84,24 @@ Through a database management tool:
 
 Migrate up to latest
 
-    docker exec -it reimagining_app python manage.py migrate
+    docker exec -it crisis_reimagined_app python manage.py migrate
 
 Create new migrations
 
-    docker exec -it reimagining_app python manage.py makemigrations
+    docker exec -it crisis_reimagined_app python manage.py makemigrations
 
 ## Updating Application Dependencies
 
 ### Yarn (javascript)
 
     # add new package
-    docker exec -it reimagining_vite yarn add [package]
+    docker run --rm -it -v $PWD/crisis_reimagined_vite/:/app/ -w /app node:25.5 yarn add [package]
 
     # update a package
-    docker exec -it reimagining_vite yarn upgrade [package]
+    docker run --rm -it -v $PWD/crisis_reimagined_vite/:/app/ -w /app node:25.5 yarn upgrade [package]
 
     # update all packages
-    docker exec -it reimagining_vite yarn upgrade
+    docker run --rm -it -v $PWD/crisis_reimagined_vite/:/app/ -w /app node:25.5 yarn upgrade
 
 After you update a dependency make sure to rebuild the images
 
@@ -116,7 +116,7 @@ Manage python dependencies in `requirements.txt`
 
 After making changes, you need to run pip or rebuild the image
 
-    docker exec -it reimagining_app pip install -r requirements.txt
+    docker exec -it crisis_reimagined_app pip install -r requirements.txt
     # or
     docker compose up -d --build
 
@@ -125,7 +125,7 @@ After making changes, you need to run pip or rebuild the image
 Edit version number in `requirements.txt` with new locked version number
 >Ex `pip==24.0.0`
 
-    docker exec -it reimagining_app pip install -r requirements.txt
+    docker exec -it crisis_reimagined_app pip install -r requirements.txt
     # or
     docker compose up -d --build
 
@@ -154,7 +154,7 @@ Using `https://github.com/tianon/docker-postgres-upgrade` to upgrade the postgre
         --volume .data/postgres:/var/lib/postgresql \
         --env PGDATAOLD=/var/lib/postgresql/<OLD POSTGRES VERSION>/docker \
         --env PGDATANEW=/var/lib/postgresql/<NEW POSTGRES VERSION>/docker \
-        --env POSTGRES_USER=reimagining \
+        --env POSTGRES_USER=crisis-reimagined \
         --env POSTGRES_PASSWORD=password \
         tianon/postgres-upgrade:<OLD POSTGRES VERSION>-to-<NEW POSTGRES VERSION> \
         --link
@@ -165,7 +165,7 @@ example:
         --volume .data/postgres:/var/lib/postgresql \
         --env PGDATAOLD=/var/lib/postgresql/17/docker \
         --env PGDATANEW=/var/lib/postgresql/18/docker \
-        --env POSTGRES_USER=reimagining \
+        --env POSTGRES_USER=crisis-reimagined \
         --env POSTGRES_PASSWORD=password \
         tianon/postgres-upgrade:17-to-18 \
         --link

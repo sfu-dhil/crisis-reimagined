@@ -26,10 +26,10 @@ mkdir -p /django-cache
 
 reload_extra_files=""
 if [[ "$GUNICORN_CMD_ARGS" == *"--reload"* ]]; then
-    reload_extra_files=$(find /app/reimagining_app /app/reimagining_project -type f \( -iname "*.html" -or -iname "*.js" -or -iname "*.css" \) -print0 | xargs -0 -I{} printf "--reload-extra-file %s " "{}")
+    reload_extra_files=$(find /app/crisis_reimagined_app /app/crisis_reimagined_project -type f \( -iname "*.html" -or -iname "*.js" -or -iname "*.css" \) -print0 | xargs -0 -I{} printf "--reload-extra-file %s " "{}")
 fi
 # Set environment variables UVICORN_RELOAD and UVICORN_LOG_LEVEL to override for development
 gunicorn --bind 0.0.0.0:80 --no-control-socket \
     --max-requests 100 --max-requests-jitter 10 \
     --log-level error --reload-engine=poll $reload_extra_files \
-    reimagining_project.wsgi:application
+    crisis_reimagined_project.wsgi:application

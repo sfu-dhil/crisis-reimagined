@@ -1,5 +1,5 @@
 # Node deps
-FROM node:25.5 AS reimagining-vite
+FROM node:25.5 AS crisis-reimagined-vite
 WORKDIR /app
 
 RUN npm upgrade -g npm \
@@ -7,19 +7,19 @@ RUN npm upgrade -g npm \
     && rm -rf /var/lib/apt/lists/*
 
 # build js deps
-COPY reimagining_vite/package.json reimagining_vite/yarn.lock /app/
+COPY crisis_reimagined_vite/package.json crisis_reimagined_vite/yarn.lock /app/
 RUN yarn
 
 # run vite build
-COPY reimagining_vite /app
+COPY crisis_reimagined_vite /app
 RUN yarn build
 
-FROM reimagining-vite AS reimagining-vite-prod
+FROM crisis-reimagined-vite AS crisis-reimagined-vite-prod
 RUN yarn --production \
     && yarn cache clean
 
 # Django app
-FROM python:3.14-alpine AS reimagining
+FROM python:3.14-alpine AS crisis-reimagined
 EXPOSE 80
 WORKDIR /app
 
@@ -37,8 +37,8 @@ RUN pip install -r requirements.txt --no-cache-dir
 COPY . /app
 
 # add prod assets
-COPY --from=reimagining-vite-prod /app/dist /static-vite/dist
-COPY --from=reimagining-vite-prod /app/node_modules /app/node_modules
+COPY --from=crisis-reimagined-vite-prod /app/dist /static-vite/dist
+COPY --from=crisis-reimagined-vite-prod /app/node_modules /app/node_modules
 
 # collect static assets for production
 RUN python manage.py collectstatic --noinput
