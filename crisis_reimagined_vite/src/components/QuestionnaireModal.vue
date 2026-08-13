@@ -50,13 +50,13 @@ onMounted(() => {
 })
 </script>
 <template>
-  <div ref="modalRef" class="modal fade" tabindex="-1" data-bs-backdrop="static">
+  <div ref="modalRef" class="modal fade" tabindex="-1" data-bs-backdrop="static" data-bs-theme="light">
     <div class="modal-dialog modal-fullscreen modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-body p-0">
-          <button type="button" class="btn-close bg-white position-fixed top-0 end-0 m-3 p-2" data-bs-dismiss="modal" aria-label="Close"></button>
-          <form ref="formRef" class="container h-100 d-flex flex-column my-3">
-            <div class="alert alert-warning mt-3" role="alert" v-if="!responsesEnabled">
+          <button type="button" class="btn-close bg-white position-fixed z-3 top-0 end-0 m-3 p-2" data-bs-dismiss="modal" aria-label="Close"></button>
+          <form ref="formRef" class="container-xxl d-flex flex-column my-3">
+            <div class="alert alert-info mt-3" role="alert" v-if="!responsesEnabled">
               New responses are currently not being collected
             </div>
             <div class="position-relative flex-grow-1 w-100">
@@ -84,9 +84,16 @@ onMounted(() => {
                 v-if="resourceType === ResponseResourceTypes.technology"
                 :key="popupIncrement" :edit-mode="!!responsesEnabled"
               />
-              <div class="position-absolute bottom-0 end-0">
+              <div class="d-none d-sm-block position-absolute bottom-0 end-0">
                 <button
                   type="submit" class="btn btn-primary btn-lg px-5 me-3 mb-3 ms-auto"
+                  @click="submit"
+                  :disabled="!responsesEnabled"
+                >Save</button>
+              </div>
+              <div class="d-block d-sm-none text-end w-100">
+                <button
+                  type="submit" class="btn btn-primary btn-lg px-5"
                   @click="submit"
                   :disabled="!responsesEnabled"
                 >Save</button>

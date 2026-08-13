@@ -1,56 +1,146 @@
 <script setup>
 import { ref, watch, onUnmounted, onMounted, nextTick } from 'vue'
+import { Tooltip } from 'bootstrap'
 import { storeToRefs } from 'pinia'
+import { useFullscreen } from '@vueuse/core'
 import panzoom from 'panzoom'
 import { useResponseStore } from '../stores/responses.js'
-import { useDisplayStore } from '../stores/display.js'
-import { ResponseResourceTypes } from '@/_resourceTypes.js'
+import { useDisplayStore, useDisplayInstallationStore, useDisplaySidebarStore } from '../stores/display.js'
+import { ResponseResourceTypes } from '../_resourceTypes.js'
+import QuestionnaireModal from './QuestionnaireModal.vue'
+import ResponsesModal from './ResponsesModal.vue'
+
+const SVG_HEIGHT = 3456
+const MAX_ZOOM = 6
+const MIN_ZOOM = 0.2
+const {
+  hasKnowledgeObjects,
+  hasRestitutionObjects,
+  hasTechnologyObjects,
+  hasGeopoliticsObjects,
+  hasMarketizationObjects,
+  hasMassificationObjects,
+} = storeToRefs(useResponseStore())
+const {
+  zoomToElementClassId,
+} = storeToRefs(useDisplayInstallationStore())
 
 const {
-  knowledgeObjects,
-  restitutionObjects,
-  technologyObjects,
-  geopoliticsObjects,
-  marketizationObjects,
-  massificationObjects,
-} = storeToRefs(useResponseStore())
+  questionnaireModalShown,
+  responsesModalShown,
+} = storeToRefs(useDisplayStore())
 
+const articleRef = ref(null)
+const { isFullscreen, toggle: toggleFullscreen } = useFullscreen(articleRef)
 const svgRef = ref(null)
 const svgGroupRef = ref(null)
 const panZoomInstance = ref(null)
 const grabbing = ref(false)
 
-onMounted(() => {
-  if (svgRef.value && svgGroupRef.value) {
-    const SVG_HEIGHT = 3962.8
-    const SVG_MARGIN_TOP = 600
-    const SVG_MARGIN_BOTTOM = 0
-
-    const MAX_ZOOM = 5
-    const MIN_ZOOM = 0.1
-    const INITIAL_ZOOM =  svgRef.value.clientHeight / (SVG_HEIGHT - SVG_MARGIN_TOP - SVG_MARGIN_BOTTOM)
-    // console.log('MIN_ZOOM', MIN_ZOOM)
-    // console.log('MAX_ZOOM', MAX_ZOOM)
-    // console.log('INITIAL_ZOOM', INITIAL_ZOOM)
-    panZoomInstance.value = panzoom(svgGroupRef.value, {
-      maxZoom: MAX_ZOOM,
-      minZoom: MIN_ZOOM,
-      bounds: true,
-      boundsPadding: 0.2,
-      enableTextSelection: false,
-      initialX: 0,
-      initialY: SVG_MARGIN_TOP,
-      initialZoom: Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, INITIAL_ZOOM)),
-      beforeMouseDown: (e) => {
-        // const isText = !!e.target.closest('text')
-        const isLink = !!e.target.closest('a')
-        const isQuestionnaire = !!e.target.closest('.questionnaire')
-        return !!isQuestionnaire || !!isLink
-      },
+const panUp = () => {
+  const {x, y} = panZoomInstance.value.getTransform()
+  panZoomInstance.value.smoothMoveTo(x, y+100)
+}
+const panDown = () => {
+  const {x, y} = panZoomInstance.value.getTransform()
+  panZoomInstance.value.smoothMoveTo(x, y-100)
+}
+const panLeft = () => {
+  const {x, y} = panZoomInstance.value.getTransform()
+  panZoomInstance.value.smoothMoveTo(x+100, y)
+}
+const panRight = () => {
+  const {x, y} = panZoomInstance.value.getTransform()
+  panZoomInstance.value.smoothMoveTo(x-100, y)
+}
+const zoomIn = () => {
+  const { width, height } = svgRef.value.getBoundingClientRect()
+  panZoomInstance.value.smoothZoom(width/2, height/2, 2)
+}
+const zoomOut = () => {
+  const { width, height } = svgRef.value.getBoundingClientRect()
+  panZoomInstance.value.smoothZoom(width/2, height/2, 0.5)
+}
+watch(zoomToElementClassId, (newValue, oldValue) => {
+  if (newValue && newValue !== oldValue) {
+    zoomToElementClassId.value = null
+    panZoomInstance.value.pause()
+    panZoomInstance.value.resume()
+    const xValues = []
+    const yValues = []
+    svgGroupRef.value.querySelectorAll(`.${newValue}`).forEach((targetEl) => {
+      const { x, y, width, height } = targetEl.getBBox()
+      const point = svgRef.value.createSVGPoint()
+      point.x = x
+      point.y = y
+      const { x: minX, y: minY } = point.matrixTransform(svgGroupRef.value.getScreenCTM().inverse().multiply(targetEl.getScreenCTM()))
+      point.x = x + width
+      point.y = y + height
+      const { x: maxX, y: maxY } = point.matrixTransform(svgGroupRef.value.getScreenCTM().inverse().multiply(targetEl.getScreenCTM()))
+      xValues.push(minX, maxX)
+      yValues.push(minY, maxY)
     })
-    panZoomInstance.value.on('panstart', (e) => grabbing.value = true)
-    panZoomInstance.value.on('panend', (e) => grabbing.value = false)
+    const { width: svgWidth, height: svgHeight } = svgRef.value.getBoundingClientRect()
+    const targetCenterX = (Math.max(...xValues) + Math.min(...xValues)) / 2
+    const targetWidth = Math.max(...xValues) - Math.min(...xValues)
+    const targetCenterY = (Math.max(...yValues) + Math.min(...yValues)) / 2
+    const targetHeight = Math.max(...yValues) - Math.min(...yValues)
+    const { scale } = panZoomInstance.value.getTransform()
+    panZoomInstance.value.moveTo(svgWidth/2 - (targetCenterX * scale), svgHeight/2 - (targetCenterY * scale))
+    let zoomAbs = 1
+    if (svgWidth < targetWidth) {
+      zoomAbs = Math.max(MIN_ZOOM, Math.min(zoomAbs, svgWidth/targetWidth))
+    }
+    if (svgHeight < targetHeight) {
+      zoomAbs = Math.max(MIN_ZOOM, Math.min(zoomAbs, svgHeight/targetHeight))
+    }
+    panZoomInstance.value.smoothZoomAbs(svgWidth/2, svgHeight/2, zoomAbs)
   }
+})
+const resetTooltips = () => {
+  nextTick(() => {
+    articleRef.value.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(
+      (tooltipTriggerEl) => Tooltip.getOrCreateInstance(tooltipTriggerEl, {container: articleRef.value}).hide()
+    )
+  })
+}
+watch(isFullscreen, (oldValue, newValue) => {
+  if (newValue != oldValue) { resetTooltips() }
+})
+const fixModalBackdrop = () => {
+  nextTick(() => {
+    const backdrop = document.querySelector('.modal-backdrop')
+    if (backdrop) { articleRef.value.appendChild(backdrop) }
+  })
+}
+watch(questionnaireModalShown, (isShown) => {
+  if (isShown && isFullscreen.value) { fixModalBackdrop() }
+})
+watch(responsesModalShown, (isShown) => {
+  if (isShown && isFullscreen.value) { fixModalBackdrop() }
+})
+onMounted(() => {
+  resetTooltips()
+  const INITIAL_ZOOM =  svgRef.value.clientHeight / SVG_HEIGHT
+  panZoomInstance.value = panzoom(svgGroupRef.value, {
+    maxZoom: MAX_ZOOM,
+    minZoom: MIN_ZOOM,
+    bounds: true,
+    boundsPadding: 0.4,
+    enableTextSelection: false,
+    initialX: 0,
+    initialY: 0,
+    initialZoom: Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, INITIAL_ZOOM)),
+    // transformOrigin: { x: 0.5, y: 0.5 },
+    beforeMouseDown: (e) => {
+      // const isText = !!e.target.closest('text')
+      const isLink = !!e.target.closest('a')
+      const isQuestionnaire = !!e.target.closest('.questionnaire')
+      return !!isQuestionnaire || !!isLink
+    },
+  })
+  panZoomInstance.value.on('panstart', (e) => grabbing.value = true)
+  panZoomInstance.value.on('panend', (e) => grabbing.value = false)
 })
 onUnmounted(() => {
   if (panZoomInstance.value) {
@@ -60,12 +150,12 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <svg ref="svgRef" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 11376 3456" width="100%" height="100%"
-    :class="{ grabbing: grabbing }"
-  >
-    <g ref="svgGroupRef">
-      <g isolation="isolate" width="11376" height="3456" viewBox="0 0 11376 3456">
-        <g id="a" data-name="Layer 1">
+  <article ref="articleRef" class="position-relative bg-light">
+    <svg ref="svgRef" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"
+      :class="{ grabbing: grabbing }" class="position-relative"
+    >
+      <g ref="svgGroupRef">
+        <g isolation="isolate" width="11376" height="3456">
           <g>
             <line x1="1492.85" y1="2862.98" x2="1492.85" y2="2860.98" fill="none" stroke="#a57e2d" stroke-miterlimit="10" stroke-width="3"/>
             <line x1="1492.85" y1="2851" x2="1492.85" y2="6.8" fill="none" stroke="#a57e2d" stroke-dasharray="3.99 9.98" stroke-miterlimit="10" stroke-width="3"/>
@@ -76,17 +166,17 @@ onUnmounted(() => {
             <line x1="216.97" y1="3119.84" x2="216.97" y2="6.81" fill="none" stroke="#a57e2d" stroke-dasharray="3.99 9.99" stroke-miterlimit="10" stroke-width="3"/>
             <line x1="216.97" y1="1.82" x2="216.97" y2="-.18" fill="none" stroke="#a57e2d" stroke-miterlimit="10" stroke-width="3"/>
           </g>
-          <text transform="translate(1183.0491 1738.2488)" fill="#223f9a" font-weight="300" mix-blend-mode="multiply"><tspan font-family="DolphYY-LightItalic, &apos;Dolph YY&apos;" font-size="16" font-style="italic"><tspan x="0" y="0" stroke="#223f9a" stroke-miterlimit="10" stroke-width=".5">Black Death</tspan><tspan x="133.58" y="0" xml:space="preserve"> leads to </tspan></tspan><tspan font-family="DolphYY-LightItalic, &apos;Dolph YY&apos;" font-size="16" font-style="italic"><tspan x="0" y="24">major collapse in </tspan></tspan><tspan font-family="DolphYY-LightItalic, &apos;Dolph YY&apos;" font-size="16" font-style="italic"><tspan x="0" y="48">student enrollment.</tspan></tspan></text>
+          <text class="BLACK-DEATH" transform="translate(1183.0491 1738.2488)" fill="#223f9a" font-weight="300" mix-blend-mode="multiply"><tspan font-family="DolphYY-LightItalic, &apos;Dolph YY&apos;" font-size="16" font-style="italic"><tspan x="0" y="0" stroke="#223f9a" stroke-miterlimit="10" stroke-width=".5">Black Death</tspan><tspan x="133.58" y="0" xml:space="preserve"> leads to </tspan></tspan><tspan font-family="DolphYY-LightItalic, &apos;Dolph YY&apos;" font-size="16" font-style="italic"><tspan x="0" y="24">major collapse in </tspan></tspan><tspan font-family="DolphYY-LightItalic, &apos;Dolph YY&apos;" font-size="16" font-style="italic"><tspan x="0" y="48">student enrollment.</tspan></tspan></text>
           <g>
             <line x1="379.56" y1="2343.05" x2="417.47" y2="2343.05" fill="none" stroke="#21409a" stroke-miterlimit="10" stroke-width="2"/>
             <polygon points="410.84 2351.23 409.48 2349.77 416.7 2343.05 409.48 2336.34 410.84 2334.87 419.64 2343.05 410.84 2351.23" fill="#21409a"/>
           </g>
-          <text transform="translate(1635.8406 402.2388)" fill="#223f9a" font-family="DolphYY-LightItalic, &apos;Dolph YY&apos;" font-style="italic" font-weight="300"><tspan font-size="24"><tspan x="0" y="0">Intellectuals no longer </tspan></tspan><tspan font-size="24"><tspan x="0" y="34">need a university position </tspan></tspan><tspan font-size="24"><tspan x="0" y="68">to participate in </tspan></tspan><tspan font-size="24"><tspan x="0" y="102">scholarship, creating a </tspan></tspan><tspan font-size="24"><tspan x="0" y="136">university ‘brain drain.’ </tspan></tspan><tspan font-size="24"><tspan x="0" y="170">The availability of,and </tspan></tspan><tspan font-size="24"><tspan x="0" y="204">need for, print media of </tspan></tspan><tspan font-size="24"><tspan x="0" y="238">all kinds also becomes </tspan></tspan><tspan font-size="24"><tspan x="0" y="272">essential in universities, </tspan></tspan><tspan font-size="24"><tspan x="0" y="306">leading to a print-dominant </tspan></tspan><tspan font-size="24"><tspan x="0" y="340">culture lasting to this </tspan></tspan><tspan font-size="24"><tspan x="0" y="374">day. </tspan></tspan></text>
+          <text class="PRINTING-PRESS" transform="translate(1635.8406 402.2388)" fill="#223f9a" font-family="DolphYY-LightItalic, &apos;Dolph YY&apos;" font-style="italic" font-weight="300"><tspan font-size="24"><tspan x="0" y="0">Intellectuals no longer </tspan></tspan><tspan font-size="24"><tspan x="0" y="34">need a university position </tspan></tspan><tspan font-size="24"><tspan x="0" y="68">to participate in </tspan></tspan><tspan font-size="24"><tspan x="0" y="102">scholarship, creating a </tspan></tspan><tspan font-size="24"><tspan x="0" y="136">university ‘brain drain.’ </tspan></tspan><tspan font-size="24"><tspan x="0" y="170">The availability of,and </tspan></tspan><tspan font-size="24"><tspan x="0" y="204">need for, print media of </tspan></tspan><tspan font-size="24"><tspan x="0" y="238">all kinds also becomes </tspan></tspan><tspan font-size="24"><tspan x="0" y="272">essential in universities, </tspan></tspan><tspan font-size="24"><tspan x="0" y="306">leading to a print-dominant </tspan></tspan><tspan font-size="24"><tspan x="0" y="340">culture lasting to this </tspan></tspan><tspan font-size="24"><tspan x="0" y="374">day. </tspan></tspan></text>
           <g>
             <line x1="1570.15" y1="392.92" x2="1608.06" y2="392.92" fill="none" stroke="#223f9a" stroke-miterlimit="10" stroke-width="2"/>
             <polygon points="1601.43 401.1 1600.06 399.64 1607.29 392.93 1600.06 386.21 1601.43 384.75 1610.22 392.93 1601.43 401.1" fill="#223f9a"/>
           </g>
-          <text transform="translate(1533.4053 350)" fill="#223f9a" font-family="GroteskRemixMonospace-regular, &apos;GroteskRemix Monospace&apos;" font-size="48"><tspan x="0" y="0">PRINTING PRESS</tspan></text>
+          <text class="PRINTING-PRESS" transform="translate(1533.4053 350)" fill="#223f9a" font-family="GroteskRemixMonospace-regular, &apos;GroteskRemix Monospace&apos;" font-size="48"><tspan x="0" y="0">PRINTING PRESS</tspan></text>
           <circle cx="1492.85" cy="3138.82" r="6.2" fill="#a57e2d"/>
           <circle cx="216.97" cy="3138.44" r="6.2" fill="#a57e2d"/>
           <g opacity=".8">
@@ -116,13 +206,13 @@ onUnmounted(() => {
           <line x1="230" y1="810.66" x2="1340" y2="810.66" fill="none" mix-blend-mode="multiply" stroke="#223f9a" stroke-miterlimit="10" stroke-width="13"/>
           <line x1="230" y1="1045.79" x2="1340" y2="1045.79" fill="none" mix-blend-mode="multiply" stroke="#223f9a" stroke-miterlimit="10" stroke-width="13"/>
           <g mix-blend-mode="multiply">
-            <text transform="translate(658.458 1325.8376)" fill="#223f9a" font-family="DolphYY-LightItalic, &apos;Dolph YY&apos;" font-size="24" font-style="italic" font-weight="300"><tspan x="0" y="0">The Church’s division creates </tspan><tspan x="0" y="34">uncertainty over papal authority, </tspan><tspan x="0" y="68">making travel unsafe and limiting </tspan><tspan x="0" y="102">international study. Universities </tspan><tspan x="0" y="136">adapt by turning toward local </tspan><tspan x="0" y="170">students and serving a growing </tspan><tspan x="0" y="204">middle class.</tspan></text>
+            <text class="PAPAL-SCHISM" transform="translate(658.458 1325.8376)" fill="#223f9a" font-family="DolphYY-LightItalic, &apos;Dolph YY&apos;" font-size="24" font-style="italic" font-weight="300"><tspan x="0" y="0">The Church’s division creates </tspan><tspan x="0" y="34">uncertainty over papal authority, </tspan><tspan x="0" y="68">making travel unsafe and limiting </tspan><tspan x="0" y="102">international study. Universities </tspan><tspan x="0" y="136">adapt by turning toward local </tspan><tspan x="0" y="170">students and serving a growing </tspan><tspan x="0" y="204">middle class.</tspan></text>
           </g>
           <g>
             <line x1="607.61" y1="1317.4" x2="645.52" y2="1317.4" fill="none" stroke="#223f9a" stroke-miterlimit="10" stroke-width="2"/>
             <polygon points="638.89 1325.58 637.52 1324.12 644.75 1317.4 637.52 1310.69 638.89 1309.22 647.68 1317.4 638.89 1325.58" fill="#223f9a"/>
           </g>
-          <text transform="translate(575.3711 1278.189)" fill="#223f9a" font-family="GroteskRemixMonospace-regular, &apos;GroteskRemix Monospace&apos;" font-size="48" mix-blend-mode="multiply"><tspan x="0" y="0">PAPAL SCHISM</tspan></text>
+          <text class="PAPAL-SCHISM" transform="translate(575.3711 1278.189)" fill="#223f9a" font-family="GroteskRemixMonospace-regular, &apos;GroteskRemix Monospace&apos;" font-size="48" mix-blend-mode="multiply"><tspan x="0" y="0">PAPAL SCHISM</tspan></text>
           <text transform="translate(1349.2065 3282.8645)" fill="#a57e2d" font-family="DazzleUnicase-Light, &apos;Dazzle Unicase&apos;" font-size="120" font-weight="300" mix-blend-mode="multiply" opacity=".75"><tspan x="0" y="0">1400</tspan></text>
           <text transform="translate(85.8525 3281.1746)" fill="#a57e2d" font-family="DazzleUnicase-Light, &apos;Dazzle Unicase&apos;" font-size="120" font-weight="300" mix-blend-mode="multiply" opacity=".75"><tspan x="0" y="0">1100</tspan></text>
           <text transform="translate(435.5381 2351.6658)" fill="#223f9a" font-family="DolphYY-LightItalic, &apos;Dolph YY&apos;" font-style="italic" font-weight="300" mix-blend-mode="multiply"><tspan font-size="24"><tspan x="0" y="0">For two years, almost no </tspan></tspan><tspan font-size="24"><tspan x="0" y="34">courses are taught in Paris. </tspan></tspan><tspan font-size="24"><tspan x="0" y="68">Finally, in 1231, King Louis </tspan></tspan><tspan font-size="24"><tspan x="0" y="102">IX and Blanche de Castile  </tspan></tspan><tspan font-size="24"><tspan x="0" y="136">recognize the independence </tspan></tspan><tspan font-size="24"><tspan x="0" y="170">of the university and renew </tspan></tspan><tspan font-size="24"><tspan x="0" y="204">and extend the privileges </tspan></tspan><tspan font-size="24"><tspan x="0" y="238">granted to it in 1200 by </tspan></tspan><tspan x="0" y="272" font-size="24">King Philip Augustus.</tspan><tspan x="382.53" y="272" font-size="21"> </tspan></text>
@@ -890,123 +980,172 @@ onUnmounted(() => {
             <line x1="5301.64" y1="354.19" x2="5301.64" y2="350.67" fill="none" stroke="#a57e2d" stroke-dasharray="3.52" stroke-miterlimit="10" stroke-width="3"/>
           </g>
         </g>
+        <g
+          class="questionnaire" transform="translate(1700, 1950)"
+          @click="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.knowledge)"
+        >
+          <title>Click to fill out the knowledge questionnaire</title>
+          <image class="takeaway" href="../assets/svg/knowledge.svg" width="355" height="800" transform="translate(0 0)" />
+          <image class="takeaway" href="../assets/svg/knowledge.svg" width="355" height="800" transform="translate(1 1)" />
+          <image class="takeaway" href="../assets/svg/knowledge.svg" width="355" height="800" transform="translate(2 2)" />
+        </g>
+        <g
+          class="questionnaire" transform="translate(2500, 200)"
+          @click="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.geopolitics)"
+        >
+          <title>Click to fill out the geopolitics questionnaire</title>
+          <image class="takeaway" href="../assets/svg/geopolitics.svg" width="355" height="800" transform="translate(0 0)" />
+          <image class="takeaway" href="../assets/svg/geopolitics.svg" width="355" height="800" transform="translate(1 1)" />
+          <image class="takeaway" href="../assets/svg/geopolitics.svg" width="355" height="800" transform="translate(2 2)" />
+        </g>
+        <g
+          class="questionnaire" transform="translate(7925, 1625)"
+          @click="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.marketization)"
+        >
+          <title>Click to fill out the marketization questionnaire</title>
+          <image class="takeaway" href="../assets/svg/marketization.svg" width="355" height="800" transform="translate(0 0)" />
+          <image class="takeaway" href="../assets/svg/marketization.svg" width="355" height="800" transform="translate(1 1)" />
+          <image class="takeaway" href="../assets/svg/marketization.svg" width="355" height="800" transform="translate(2 2)" />
+        </g>
+        <g
+          class="questionnaire" transform="translate(7000, 725)"
+          @click="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.massification)"
+        >
+          <title>Click to fill out the massification questionnaire</title>
+          <image class="takeaway" href="../assets/svg/massification.svg" width="355" height="800" transform="translate(0 0)" />
+          <image class="takeaway" href="../assets/svg/massification.svg" width="355" height="800" transform="translate(1 1)" />
+          <image class="takeaway" href="../assets/svg/massification.svg" width="355" height="800" transform="translate(2 2)" />
+        </g>
+        <g
+          class="questionnaire" transform="translate(3050, 1500)"
+          @click="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.restitution)"
+        >
+          <title>Click to fill out the restitution questionnaire</title>
+          <image class="takeaway" href="../assets/svg/restitution.svg" width="355" height="781.5" transform="translate(0 0)" />
+          <image class="takeaway" href="../assets/svg/restitution.svg" width="355" height="781.5" transform="translate(1 1)" />
+          <image class="takeaway" href="../assets/svg/restitution.svg" width="355" height="781.5" transform="translate(2 2)" />
+        </g>
+        <g
+          class="questionnaire" transform="translate(5650, 350)"
+          @click="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.technology)"
+        >
+          <title>Click to fill out the technology questionnaire</title>
+          <image class="takeaway" href="../assets/svg/technology.svg" width="355" height="800" transform="translate(0 0)" />
+          <image class="takeaway" href="../assets/svg/technology.svg" width="355" height="800" transform="translate(1 1)" />
+          <image class="takeaway" href="../assets/svg/technology.svg" width="355" height="800" transform="translate(2 2)" />
+        </g>
+        <g
+          v-if="hasKnowledgeObjects"
+          class="responses" transform="translate(10900, 1375)"
+          @click="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.knowledge)"
+        >
+          <title>Click to view the knowledge responses</title>
+          <image class="takeaway" href="../assets/svg/knowledge.svg" width="355" height="800" transform="translate(0 0)" />
+          <image class="takeaway" href="../assets/svg/knowledge.svg" width="355" height="800" transform="translate(1 1)" />
+          <image class="takeaway" href="../assets/svg/knowledge.svg" width="355" height="800" transform="translate(2 2)" />
+        </g>
+        <g
+          v-if="hasGeopoliticsObjects"
+          class="responses" transform="translate(9125, 2300)"
+          @click="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.geopolitics)"
+        >
+          <title>Click to view the geopolitics responses</title>
+          <image class="takeaway" href="../assets/svg/geopolitics.svg" width="355" height="800" transform="translate(0 0)" />
+          <image class="takeaway" href="../assets/svg/geopolitics.svg" width="355" height="800" transform="translate(1 1)" />
+          <image class="takeaway" href="../assets/svg/geopolitics.svg" width="355" height="800" transform="translate(2 2)" />
+        </g>
+        <g
+          v-if="hasMarketizationObjects"
+          class="responses" transform="translate(9775, 700)"
+          @click="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.marketization)"
+        >
+          <title>Click to view the marketization responses</title>
+          <image class="takeaway" href="../assets/svg/marketization.svg" width="355" height="800" transform="translate(0 0)" />
+          <image class="takeaway" href="../assets/svg/marketization.svg" width="355" height="800" transform="translate(1 1)" />
+          <image class="takeaway" href="../assets/svg/marketization.svg" width="355" height="800" transform="translate(2 2)" />
+        </g>
+        <g
+          v-if="hasMassificationObjects"
+          class="responses" transform="translate(8950, 1200)"
+          @click="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.massification)"
+        >
+          <title>Click to view the massification responses</title>
+          <image class="takeaway" href="../assets/svg/massification.svg" width="355" height="800" transform="translate(0 0)" />
+          <image class="takeaway" href="../assets/svg/massification.svg" width="355" height="800" transform="translate(1 1)" />
+          <image class="takeaway" href="../assets/svg/massification.svg" width="355" height="800" transform="translate(2 2)" />
+        </g>
+        <g
+          v-if="hasRestitutionObjects"
+          class="responses" transform="translate(10350, 2125)"
+          @click="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.restitution)"
+        >
+          <title>Click to view the restitution responses</title>
+          <image class="takeaway" href="../assets/svg/restitution.svg" width="355" height="781.5" transform="translate(0 0)" />
+          <image class="takeaway" href="../assets/svg/restitution.svg" width="355" height="781.5" transform="translate(1 1)" />
+          <image class="takeaway" href="../assets/svg/restitution.svg" width="355" height="781.5" transform="translate(2 2)" />
+        </g>
+        <g
+          v-if="hasTechnologyObjects"
+          class="responses" transform="translate(9550, 1700)"
+          @click="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.technology)"
+        >
+          <title>Click to view the technology responses</title>
+          <image class="takeaway" href="../assets/svg/technology.svg" width="355" height="800" transform="translate(0 0)" />
+          <image class="takeaway" href="../assets/svg/technology.svg" width="355" height="800" transform="translate(1 1)" />
+          <image class="takeaway" href="../assets/svg/technology.svg" width="355" height="800" transform="translate(2 2)" />
+        </g>
       </g>
-      <g
-        class="questionnaire" transform="translate(1700, 1950)"
-        @click="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.knowledge)"
+    </svg>
+    <div class="z-3 position-absolute bottom-0 start-50 translate-middle-x btn-group text-center">
+      <button @click="panUp"
+        type="button" class="btn btn-link text-light link-underline-opacity-0"
+        data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Pan Up"
       >
-        <title>Click to fill out the knowledge questionnaire</title>
-        <image class="takeaway" href="../assets/svg/knowledge.svg" width="355" height="800" transform="translate(0 0)" />
-        <image class="takeaway" href="../assets/svg/knowledge.svg" width="355" height="800" transform="translate(1 1)" />
-        <image class="takeaway" href="../assets/svg/knowledge.svg" width="355" height="800" transform="translate(2 2)" />
-      </g>
-      <g
-        class="questionnaire" transform="translate(2500, 200)"
-        @click="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.geopolitics)"
+        <i class="bi bi-arrow-up"></i>
+      </button>
+      <button @click="panDown"
+        type="button" class="btn btn-link text-light link-underline-opacity-0"
+        data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Pan Down"
       >
-        <title>Click to fill out the geopolitics questionnaire</title>
-        <image class="takeaway" href="../assets/svg/geopolitics.svg" width="355" height="800" transform="translate(0 0)" />
-        <image class="takeaway" href="../assets/svg/geopolitics.svg" width="355" height="800" transform="translate(1 1)" />
-        <image class="takeaway" href="../assets/svg/geopolitics.svg" width="355" height="800" transform="translate(2 2)" />
-      </g>
-      <g
-        class="questionnaire" transform="translate(7925, 1625)"
-        @click="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.marketization)"
+        <i class="bi bi-arrow-down"></i>
+      </button>
+      <button @click="panLeft"
+        type="button" class="btn btn-link text-light link-underline-opacity-0"
+        data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Pan Left"
       >
-        <title>Click to fill out the marketization questionnaire</title>
-        <image class="takeaway" href="../assets/svg/marketization.svg" width="355" height="800" transform="translate(0 0)" />
-        <image class="takeaway" href="../assets/svg/marketization.svg" width="355" height="800" transform="translate(1 1)" />
-        <image class="takeaway" href="../assets/svg/marketization.svg" width="355" height="800" transform="translate(2 2)" />
-      </g>
-      <g
-        class="questionnaire" transform="translate(7000, 725)"
-        @click="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.massification)"
+        <i class="bi bi-arrow-left"></i>
+      </button>
+      <button @click="panRight"
+        type="button" class="btn btn-link text-light link-underline-opacity-0"
+        data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Pan Right"
       >
-        <title>Click to fill out the massification questionnaire</title>
-        <image class="takeaway" href="../assets/svg/massification.svg" width="355" height="800" transform="translate(0 0)" />
-        <image class="takeaway" href="../assets/svg/massification.svg" width="355" height="800" transform="translate(1 1)" />
-        <image class="takeaway" href="../assets/svg/massification.svg" width="355" height="800" transform="translate(2 2)" />
-      </g>
-      <g
-        class="questionnaire" transform="translate(3050, 1500)"
-        @click="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.restitution)"
+        <i class="bi bi-arrow-right"></i>
+      </button>
+      <button @click="zoomIn"
+        type="button" class="btn btn-link text-light link-underline-opacity-0"
+        data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Zoom In"
       >
-        <title>Click to fill out the restitution questionnaire</title>
-        <image class="takeaway" href="../assets/svg/restitution.svg" width="355" height="781.5" transform="translate(0 0)" />
-        <image class="takeaway" href="../assets/svg/restitution.svg" width="355" height="781.5" transform="translate(1 1)" />
-        <image class="takeaway" href="../assets/svg/restitution.svg" width="355" height="781.5" transform="translate(2 2)" />
-      </g>
-      <g
-        class="questionnaire" transform="translate(5650, 350)"
-        @click="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.technology)"
+        <i class="bi bi-plus-lg"></i>
+      </button>
+      <button @click="zoomOut"
+        type="button" class="btn btn-link text-light link-underline-opacity-0"
+        data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Zoom Out"
       >
-        <title>Click to fill out the technology questionnaire</title>
-        <image class="takeaway" href="../assets/svg/technology.svg" width="355" height="800" transform="translate(0 0)" />
-        <image class="takeaway" href="../assets/svg/technology.svg" width="355" height="800" transform="translate(1 1)" />
-        <image class="takeaway" href="../assets/svg/technology.svg" width="355" height="800" transform="translate(2 2)" />
-      </g>
-      <g
-        v-if="knowledgeObjects.length > 0"
-        class="responses" transform="translate(10900, 1375)"
-        @click="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.knowledge)"
+        <i class="bi bi-dash-lg"></i>
+      </button>
+    </div>
+    <div class="z-3 position-absolute top-0 end-0 btn-group-vertical text-center">
+      <button @click="() => { toggleFullscreen() }"
+        type="button" class="btn btn-link text-light link-underline-opacity-0"
+        data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Toggle Fullscreen Mode"
       >
-        <title>Click to view the knowledge responses</title>
-        <image class="takeaway" href="../assets/svg/knowledge.svg" width="355" height="800" transform="translate(0 0)" />
-        <image class="takeaway" href="../assets/svg/knowledge.svg" width="355" height="800" transform="translate(1 1)" />
-        <image class="takeaway" href="../assets/svg/knowledge.svg" width="355" height="800" transform="translate(2 2)" />
-      </g>
-      <g
-        v-if="geopoliticsObjects.length > 0"
-        class="responses" transform="translate(9125, 2300)"
-        @click="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.geopolitics)"
-      >
-        <title>Click to view the geopolitics responses</title>
-        <image class="takeaway" href="../assets/svg/geopolitics.svg" width="355" height="800" transform="translate(0 0)" />
-        <image class="takeaway" href="../assets/svg/geopolitics.svg" width="355" height="800" transform="translate(1 1)" />
-        <image class="takeaway" href="../assets/svg/geopolitics.svg" width="355" height="800" transform="translate(2 2)" />
-      </g>
-      <g
-        v-if="marketizationObjects.length > 0"
-        class="responses" transform="translate(9775, 700)"
-        @click="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.marketization)"
-      >
-        <title>Click to view the marketization responses</title>
-        <image class="takeaway" href="../assets/svg/marketization.svg" width="355" height="800" transform="translate(0 0)" />
-        <image class="takeaway" href="../assets/svg/marketization.svg" width="355" height="800" transform="translate(1 1)" />
-        <image class="takeaway" href="../assets/svg/marketization.svg" width="355" height="800" transform="translate(2 2)" />
-      </g>
-      <g
-        v-if="massificationObjects.length > 0"
-        class="responses" transform="translate(8950, 1200)"
-        @click="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.massification)"
-      >
-        <title>Click to view the massification responses</title>
-        <image class="takeaway" href="../assets/svg/massification.svg" width="355" height="800" transform="translate(0 0)" />
-        <image class="takeaway" href="../assets/svg/massification.svg" width="355" height="800" transform="translate(1 1)" />
-        <image class="takeaway" href="../assets/svg/massification.svg" width="355" height="800" transform="translate(2 2)" />
-      </g>
-      <g
-        v-if="restitutionObjects.length > 0"
-        class="responses" transform="translate(10350, 2125)"
-        @click="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.restitution)"
-      >
-        <title>Click to view the restitution responses</title>
-        <image class="takeaway" href="../assets/svg/restitution.svg" width="355" height="781.5" transform="translate(0 0)" />
-        <image class="takeaway" href="../assets/svg/restitution.svg" width="355" height="781.5" transform="translate(1 1)" />
-        <image class="takeaway" href="../assets/svg/restitution.svg" width="355" height="781.5" transform="translate(2 2)" />
-      </g>
-      <g
-        v-if="technologyObjects.length > 0"
-        class="responses" transform="translate(9550, 1700)"
-        @click="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.technology)"
-      >
-        <title>Click to view the technology responses</title>
-        <image class="takeaway" href="../assets/svg/technology.svg" width="355" height="800" transform="translate(0 0)" />
-        <image class="takeaway" href="../assets/svg/technology.svg" width="355" height="800" transform="translate(1 1)" />
-        <image class="takeaway" href="../assets/svg/technology.svg" width="355" height="800" transform="translate(2 2)" />
-      </g>
-    </g>
-  </svg>
+        <i v-if="!isFullscreen" class="bi bi-fullscreen"></i>
+        <i v-if="isFullscreen" class="bi bi-fullscreen-exit"></i>
+      </button>
+    </div>
+    <QuestionnaireModal />
+    <ResponsesModal />
+  </article>
 </template>
 
 <style scoped>
@@ -1062,5 +1201,9 @@ svg {
       }
     }
   }
+}
+button.btn.btn-link {
+  font-size: 1.5em;
+  text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
 }
 </style>

@@ -1,7 +1,7 @@
 {% load static %}
 {% load django_vite %}
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="light">
+<html lang="en" data-bs-theme="dark">
     <head>
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -20,23 +20,6 @@
             {% block content %}
             {% endblock %}
         </main>
-        <footer class="flex-shrink-1 pb-3">
-            <div class="container-flex">
-                <hr class="mt-0" />
-                <div class="row align-items-center justify-content-between flex-column flex-sm-row mx-5">
-                    <div class="col-auto">
-                        <div class="small m-0 text-dark">Reimagining the Public University - Digital Edition</div>
-                    </div>
-                    <div class="col-auto">
-                        <a class="link-dark small" href="https://docs.dhil.lib.sfu.ca/privacy.html" target="_blank">Privacy</a>
-                        {% if GIT_REPO_LINK and GIT_REPO_LINK_TEXT %}
-                            <span class="text-white mx-1">&middot;</span>
-                            <a class="link-dark small" target="_blank" href="{{ GIT_REPO_LINK }}">{{ GIT_REPO_LINK_TEXT }}</a>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </footer>
         {% block javascript %}
         {% endblock %}
     </body>

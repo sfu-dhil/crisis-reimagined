@@ -28,3 +28,50 @@ export const useDisplayStore = defineStore('display', {
   },
   persist: false,
 })
+
+export const SideBarNavTypes = Object.freeze({
+  about: 'about',
+  timeline: 'timeline',
+  crises: 'crises',
+})
+
+export const useDisplaySidebarStore = defineStore('display-sidebar', {
+  state: () => ({
+    sidebarWidth: 400,
+    gitRepoLink: null,
+    gitRepoLinkText: null,
+    activeNav: SideBarNavTypes.about
+  }),
+  getters: {
+    aboutActive: (state) => state.activeNav === SideBarNavTypes.about,
+    timelineActive: (state) => state.activeNav === SideBarNavTypes.timeline,
+    crisesActive: (state) => state.activeNav === SideBarNavTypes.crises,
+  },
+  actions: {
+    showAbout() {
+      this.activeNav = SideBarNavTypes.about
+    },
+    showTimeline() {
+      this.activeNav = SideBarNavTypes.timeline
+    },
+    showCrisis() {
+      this.activeNav = SideBarNavTypes.crises
+    },
+  },
+  persist: {
+    storage: sessionStorage,
+  },
+})
+
+export const useDisplayInstallationStore = defineStore('display-installation', {
+  state: () => ({
+    zoomToElementClassId: null,
+  }),
+  getters: {},
+  actions: {
+    zoomToElementByClassIds(elementClassId) {
+      this.zoomToElementClassId = elementClassId
+    },
+  },
+  persist: false,
+})

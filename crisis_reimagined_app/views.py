@@ -14,6 +14,8 @@ def home(request):
     return render(request, 'index.html', {
         'responses_json': json.dumps(ResponseSerializerPolymorphicSerializer(responses, many=True).data),
         'config_json': json.dumps({
-            'responses_enabled': Config.get_solo().responses_enabled
+            'responses_enabled': Config.get_solo().responses_enabled,
+            'git_repo_link': f"{settings.GIT_REPO}/tree/{settings.GIT_TAG if settings.GIT_TAG else settings.GIT_COMMIT}",
+            'git_repo_link_text': f"GitHub{' ' + settings.GIT_TAG if settings.GIT_TAG else ''}",
         }),
     })

@@ -12,7 +12,6 @@ import { useDisplayStore } from '../stores/display.js'
 import { useResponseStore } from '../stores/responses.js'
 import { ResponseResourceTypes } from '../_resourceTypes.js'
 
-
 const fade = {
   initial: {
     opacity: 0,
@@ -106,11 +105,11 @@ onMounted(() => {
 })
 </script>
 <template>
-  <div ref="modalRef" class="modal fade" tabindex="-1" data-bs-backdrop="static">
+  <div ref="modalRef" class="modal fade" tabindex="-1" data-bs-backdrop="static" data-bs-theme="light">
     <div class="modal-dialog modal-fullscreen modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-body p-0">
-          <button type="button" class="btn-close bg-white position-fixed z-3 top-0 end-0 m-3 p-2" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close text-dark bg-white position-fixed z-3 top-0 end-0 m-3 p-2" data-bs-dismiss="modal" aria-label="Close"></button>
           <button
             class="d-none d-xxl-block control-prev position-fixed top-0 bottom-0 start-0 z-2" type="button"
             v-if="currentObjectIndex > 0"
@@ -119,21 +118,8 @@ onMounted(() => {
             <span class="control-prev-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Previous</span>
           </button>
-          <div class="container h-100 d-flex flex-column my-3" v-if="currentObject" :key="currentObject.id">
-            <div class="d-none d-md-flex d-xxl-none w-100 mb-2">
-              <button type="button" class="btn btn-primary me-auto"
-                v-if="currentObjectIndex > 0"
-                @click="previous"
-              ><i class="bi bi-chevron-left"></i> Previous
-              </button>
-              <button type="button" class="btn btn-primary ms-auto"
-                v-if="currentObjectIndex < objects.length - 1"
-                @click="next"
-                :disabled="currentObjectIndex === objects.length - 1"
-              >Next <i class="bi bi-chevron-right"></i>
-              </button>
-            </div>
-            <div class="alert alert-warning mb-3" role="alert" v-if="currentObject.pending">
+          <div class="container-xxl d-flex flex-column my-3" v-if="currentObject" :key="currentObject.id">
+            <div class="alert alert-info mb-3" role="alert" v-if="currentObject.pending">
               Your response is awaiting approval
             </div>
             <Motion
@@ -208,9 +194,7 @@ onMounted(() => {
 }
 .control-next, .control-prev {
   width: 5%;
-  opacity: .5;
   border: 0;
-  background: 0 0;
   filter: var(invert(1) grayscale(100));
 }
 .control-prev-icon {
