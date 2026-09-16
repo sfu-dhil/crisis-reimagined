@@ -1,14 +1,18 @@
 <script setup>
 import { ref, watch, onUnmounted, onMounted, nextTick } from 'vue'
-import { Tooltip } from 'bootstrap'
 import { storeToRefs } from 'pinia'
-import { useFullscreen } from '@vueuse/core'
+import { useFullscreen, breakpointsBootstrapV5, useBreakpoints } from '@vueuse/core'
 import panzoom from 'panzoom'
+import { resetTooltips } from '../_utils.js'
 import { useResponseStore } from '../stores/responses.js'
 import { useDisplayStore, useDisplayInstallationStore, useDisplaySidebarStore } from '../stores/display.js'
 import { ResponseResourceTypes } from '../_resourceTypes.js'
 import QuestionnaireModal from './QuestionnaireModal.vue'
 import ResponsesModal from './ResponsesModal.vue'
+
+const breakpoints = useBreakpoints(breakpointsBootstrapV5)
+const isMediumOrSmallerScreen = breakpoints.smallerOrEqual('md')
+const isLargerThanMediumScreen = breakpoints.greater('md')
 
 const SVG_HEIGHT = 3456
 const MAX_ZOOM = 6
@@ -32,6 +36,12 @@ const {
 
 const articleRef = ref(null)
 const { isFullscreen, toggle: toggleFullscreen } = useFullscreen(articleRef)
+watch(isFullscreen, (oldValue, newValue) => {
+  if (newValue !== oldValue) { nextTick(() => resetTooltips(articleRef.value)) }
+})
+watch(isLargerThanMediumScreen, (oldValue, newValue) => {
+  if (newValue !== oldValue) { nextTick(() => resetTooltips(articleRef.value)) }
+})
 const svgRef = ref(null)
 const svgGroupRef = ref(null)
 const panZoomInstance = ref(null)
@@ -97,16 +107,6 @@ watch(zoomToElementClassId, (newValue, oldValue) => {
     panZoomInstance.value.smoothZoomAbs(svgWidth/2, svgHeight/2, zoomAbs)
   }
 })
-const resetTooltips = () => {
-  nextTick(() => {
-    articleRef.value.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(
-      (tooltipTriggerEl) => Tooltip.getOrCreateInstance(tooltipTriggerEl, {container: articleRef.value}).hide()
-    )
-  })
-}
-watch(isFullscreen, (oldValue, newValue) => {
-  if (newValue != oldValue) { resetTooltips() }
-})
 const fixModalBackdrop = () => {
   nextTick(() => {
     const backdrop = document.querySelector('.modal-backdrop')
@@ -120,7 +120,7 @@ watch(responsesModalShown, (isShown) => {
   if (isShown && isFullscreen.value) { fixModalBackdrop() }
 })
 onMounted(() => {
-  resetTooltips()
+  nextTick(() => resetTooltips(articleRef.value))
   const INITIAL_ZOOM =  svgRef.value.clientHeight / SVG_HEIGHT
   panZoomInstance.value = panzoom(svgGroupRef.value, {
     maxZoom: MAX_ZOOM,
@@ -166,17 +166,17 @@ onUnmounted(() => {
             <line x1="216.97" y1="3119.84" x2="216.97" y2="6.81" fill="none" stroke="#a57e2d" stroke-dasharray="3.99 9.99" stroke-miterlimit="10" stroke-width="3"/>
             <line x1="216.97" y1="1.82" x2="216.97" y2="-.18" fill="none" stroke="#a57e2d" stroke-miterlimit="10" stroke-width="3"/>
           </g>
-          <text class="BLACK-DEATH" transform="translate(1183.0491 1738.2488)" fill="#223f9a" font-weight="300" mix-blend-mode="multiply"><tspan font-family="DolphYY-LightItalic, &apos;Dolph YY&apos;" font-size="16" font-style="italic"><tspan x="0" y="0" stroke="#223f9a" stroke-miterlimit="10" stroke-width=".5">Black Death</tspan><tspan x="133.58" y="0" xml:space="preserve"> leads to </tspan></tspan><tspan font-family="DolphYY-LightItalic, &apos;Dolph YY&apos;" font-size="16" font-style="italic"><tspan x="0" y="24">major collapse in </tspan></tspan><tspan font-family="DolphYY-LightItalic, &apos;Dolph YY&apos;" font-size="16" font-style="italic"><tspan x="0" y="48">student enrollment.</tspan></tspan></text>
+          <text transform="translate(1183.0491 1738.2488)" fill="#223f9a" font-weight="300" mix-blend-mode="multiply"><tspan font-family="DolphYY-LightItalic, &apos;Dolph YY&apos;" font-size="16" font-style="italic"><tspan x="0" y="0" stroke="#223f9a" stroke-miterlimit="10" stroke-width=".5">Black Death</tspan><tspan x="133.58" y="0" xml:space="preserve"> leads to </tspan></tspan><tspan font-family="DolphYY-LightItalic, &apos;Dolph YY&apos;" font-size="16" font-style="italic"><tspan x="0" y="24">major collapse in </tspan></tspan><tspan font-family="DolphYY-LightItalic, &apos;Dolph YY&apos;" font-size="16" font-style="italic"><tspan x="0" y="48">student enrollment.</tspan></tspan></text>
           <g>
             <line x1="379.56" y1="2343.05" x2="417.47" y2="2343.05" fill="none" stroke="#21409a" stroke-miterlimit="10" stroke-width="2"/>
             <polygon points="410.84 2351.23 409.48 2349.77 416.7 2343.05 409.48 2336.34 410.84 2334.87 419.64 2343.05 410.84 2351.23" fill="#21409a"/>
           </g>
-          <text class="PRINTING-PRESS" transform="translate(1635.8406 402.2388)" fill="#223f9a" font-family="DolphYY-LightItalic, &apos;Dolph YY&apos;" font-style="italic" font-weight="300"><tspan font-size="24"><tspan x="0" y="0">Intellectuals no longer </tspan></tspan><tspan font-size="24"><tspan x="0" y="34">need a university position </tspan></tspan><tspan font-size="24"><tspan x="0" y="68">to participate in </tspan></tspan><tspan font-size="24"><tspan x="0" y="102">scholarship, creating a </tspan></tspan><tspan font-size="24"><tspan x="0" y="136">university ‘brain drain.’ </tspan></tspan><tspan font-size="24"><tspan x="0" y="170">The availability of,and </tspan></tspan><tspan font-size="24"><tspan x="0" y="204">need for, print media of </tspan></tspan><tspan font-size="24"><tspan x="0" y="238">all kinds also becomes </tspan></tspan><tspan font-size="24"><tspan x="0" y="272">essential in universities, </tspan></tspan><tspan font-size="24"><tspan x="0" y="306">leading to a print-dominant </tspan></tspan><tspan font-size="24"><tspan x="0" y="340">culture lasting to this </tspan></tspan><tspan font-size="24"><tspan x="0" y="374">day. </tspan></tspan></text>
+          <text transform="translate(1635.8406 402.2388)" fill="#223f9a" font-family="DolphYY-LightItalic, &apos;Dolph YY&apos;" font-style="italic" font-weight="300"><tspan font-size="24"><tspan x="0" y="0">Intellectuals no longer </tspan></tspan><tspan font-size="24"><tspan x="0" y="34">need a university position </tspan></tspan><tspan font-size="24"><tspan x="0" y="68">to participate in </tspan></tspan><tspan font-size="24"><tspan x="0" y="102">scholarship, creating a </tspan></tspan><tspan font-size="24"><tspan x="0" y="136">university ‘brain drain.’ </tspan></tspan><tspan font-size="24"><tspan x="0" y="170">The availability of,and </tspan></tspan><tspan font-size="24"><tspan x="0" y="204">need for, print media of </tspan></tspan><tspan font-size="24"><tspan x="0" y="238">all kinds also becomes </tspan></tspan><tspan font-size="24"><tspan x="0" y="272">essential in universities, </tspan></tspan><tspan font-size="24"><tspan x="0" y="306">leading to a print-dominant </tspan></tspan><tspan font-size="24"><tspan x="0" y="340">culture lasting to this </tspan></tspan><tspan font-size="24"><tspan x="0" y="374">day. </tspan></tspan></text>
           <g>
             <line x1="1570.15" y1="392.92" x2="1608.06" y2="392.92" fill="none" stroke="#223f9a" stroke-miterlimit="10" stroke-width="2"/>
             <polygon points="1601.43 401.1 1600.06 399.64 1607.29 392.93 1600.06 386.21 1601.43 384.75 1610.22 392.93 1601.43 401.1" fill="#223f9a"/>
           </g>
-          <text class="PRINTING-PRESS" transform="translate(1533.4053 350)" fill="#223f9a" font-family="GroteskRemixMonospace-regular, &apos;GroteskRemix Monospace&apos;" font-size="48"><tspan x="0" y="0">PRINTING PRESS</tspan></text>
+          <text transform="translate(1533.4053 350)" fill="#223f9a" font-family="GroteskRemixMonospace-regular, &apos;GroteskRemix Monospace&apos;" font-size="48"><tspan x="0" y="0">PRINTING PRESS</tspan></text>
           <circle cx="1492.85" cy="3138.82" r="6.2" fill="#a57e2d"/>
           <circle cx="216.97" cy="3138.44" r="6.2" fill="#a57e2d"/>
           <g opacity=".8">
@@ -206,13 +206,13 @@ onUnmounted(() => {
           <line x1="230" y1="810.66" x2="1340" y2="810.66" fill="none" mix-blend-mode="multiply" stroke="#223f9a" stroke-miterlimit="10" stroke-width="13"/>
           <line x1="230" y1="1045.79" x2="1340" y2="1045.79" fill="none" mix-blend-mode="multiply" stroke="#223f9a" stroke-miterlimit="10" stroke-width="13"/>
           <g mix-blend-mode="multiply">
-            <text class="PAPAL-SCHISM" transform="translate(658.458 1325.8376)" fill="#223f9a" font-family="DolphYY-LightItalic, &apos;Dolph YY&apos;" font-size="24" font-style="italic" font-weight="300"><tspan x="0" y="0">The Church’s division creates </tspan><tspan x="0" y="34">uncertainty over papal authority, </tspan><tspan x="0" y="68">making travel unsafe and limiting </tspan><tspan x="0" y="102">international study. Universities </tspan><tspan x="0" y="136">adapt by turning toward local </tspan><tspan x="0" y="170">students and serving a growing </tspan><tspan x="0" y="204">middle class.</tspan></text>
+            <text transform="translate(658.458 1325.8376)" fill="#223f9a" font-family="DolphYY-LightItalic, &apos;Dolph YY&apos;" font-size="24" font-style="italic" font-weight="300"><tspan x="0" y="0">The Church’s division creates </tspan><tspan x="0" y="34">uncertainty over papal authority, </tspan><tspan x="0" y="68">making travel unsafe and limiting </tspan><tspan x="0" y="102">international study. Universities </tspan><tspan x="0" y="136">adapt by turning toward local </tspan><tspan x="0" y="170">students and serving a growing </tspan><tspan x="0" y="204">middle class.</tspan></text>
           </g>
           <g>
             <line x1="607.61" y1="1317.4" x2="645.52" y2="1317.4" fill="none" stroke="#223f9a" stroke-miterlimit="10" stroke-width="2"/>
             <polygon points="638.89 1325.58 637.52 1324.12 644.75 1317.4 637.52 1310.69 638.89 1309.22 647.68 1317.4 638.89 1325.58" fill="#223f9a"/>
           </g>
-          <text class="PAPAL-SCHISM" transform="translate(575.3711 1278.189)" fill="#223f9a" font-family="GroteskRemixMonospace-regular, &apos;GroteskRemix Monospace&apos;" font-size="48" mix-blend-mode="multiply"><tspan x="0" y="0">PAPAL SCHISM</tspan></text>
+          <text transform="translate(575.3711 1278.189)" fill="#223f9a" font-family="GroteskRemixMonospace-regular, &apos;GroteskRemix Monospace&apos;" font-size="48" mix-blend-mode="multiply"><tspan x="0" y="0">PAPAL SCHISM</tspan></text>
           <text transform="translate(1349.2065 3282.8645)" fill="#a57e2d" font-family="DazzleUnicase-Light, &apos;Dazzle Unicase&apos;" font-size="120" font-weight="300" mix-blend-mode="multiply" opacity=".75"><tspan x="0" y="0">1400</tspan></text>
           <text transform="translate(85.8525 3281.1746)" fill="#a57e2d" font-family="DazzleUnicase-Light, &apos;Dazzle Unicase&apos;" font-size="120" font-weight="300" mix-blend-mode="multiply" opacity=".75"><tspan x="0" y="0">1100</tspan></text>
           <text transform="translate(435.5381 2351.6658)" fill="#223f9a" font-family="DolphYY-LightItalic, &apos;Dolph YY&apos;" font-style="italic" font-weight="300" mix-blend-mode="multiply"><tspan font-size="24"><tspan x="0" y="0">For two years, almost no </tspan></tspan><tspan font-size="24"><tspan x="0" y="34">courses are taught in Paris. </tspan></tspan><tspan font-size="24"><tspan x="0" y="68">Finally, in 1231, King Louis </tspan></tspan><tspan font-size="24"><tspan x="0" y="102">IX and Blanche de Castile  </tspan></tspan><tspan font-size="24"><tspan x="0" y="136">recognize the independence </tspan></tspan><tspan font-size="24"><tspan x="0" y="170">of the university and renew </tspan></tspan><tspan font-size="24"><tspan x="0" y="204">and extend the privileges </tspan></tspan><tspan font-size="24"><tspan x="0" y="238">granted to it in 1200 by </tspan></tspan><tspan x="0" y="272" font-size="24">King Philip Augustus.</tspan><tspan x="382.53" y="272" font-size="21"> </tspan></text>
@@ -1136,11 +1136,22 @@ onUnmounted(() => {
     </div>
     <div class="z-3 position-absolute top-0 end-0 btn-group-vertical text-center">
       <button @click="() => { toggleFullscreen() }"
+        v-if="isLargerThanMediumScreen"
         type="button" class="btn btn-link text-light link-underline-opacity-0"
         data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Toggle Fullscreen Mode"
       >
         <i v-if="!isFullscreen" class="bi bi-fullscreen"></i>
         <i v-if="isFullscreen" class="bi bi-fullscreen-exit"></i>
+      </button>
+    </div>
+    <div class="z-3 position-absolute bottom-0 start-0 btn-group-vertical text-center"
+      v-if="isMediumOrSmallerScreen"
+    >
+      <button @click="() => { useDisplaySidebarStore().showSidebarOffcanvas() }"
+        type="button" class="btn btn-link text-light link-underline-opacity-0"
+        data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Show Sidebar"
+      >
+        <i class="bi bi-card-list"></i>
       </button>
     </div>
     <QuestionnaireModal />

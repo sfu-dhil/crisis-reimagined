@@ -26,8 +26,7 @@
       <polygon points="101.09 81.66 100.41 80.93 104.02 77.57 100.41 74.21 101.09 73.48 105.49 77.57 101.09 81.66" fill="#231f20"/>
     </g>
     <g>
-      <text transform="translate(72.65 275.7)" fill="#231f20" font-family="DazzleUnicase-Medium, &apos;Dazzle Unicase&apos;" font-size="36" font-weight="500"><tspan x="0" y="0" letter-spacing="-.04em">2</tspan><tspan x="21.56" y="0" letter-spacing="-.02em">0</tspan></text>
-      <line x1="126.07" y1="275.6" x2="177.29" y2="275.6" fill="none" stroke="#231f20" stroke-dasharray="6 3" stroke-miterlimit="10" stroke-width=".75"/>
+      <line x1="70" y1="275.6" x2="158" y2="275.6" fill="none" stroke="#231f20" stroke-dasharray="6 3" stroke-miterlimit="10" stroke-width=".75"/>
     </g>
     <g>
       <path d="M97.47,24.53h9v1.8h-7.02v10.62h6.12v1.8h-8.1v-14.22Z" fill="#231f20"/>

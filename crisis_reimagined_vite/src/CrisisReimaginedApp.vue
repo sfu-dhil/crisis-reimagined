@@ -1,10 +1,16 @@
 <script setup>
 import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
+import { breakpointsBootstrapV5, useBreakpoints } from '@vueuse/core'
 import { useResponseStore } from './stores/responses.js'
 import { useDisplayStore, useDisplaySidebarStore } from './stores/display.js'
 import SideBar from './components/SideBar.vue'
+import SideBarOffcanvas from './components/SideBarOffcanvas.vue'
 import InstallationSvg from './components/InstallationSvg.vue'
+
+const breakpoints = useBreakpoints(breakpointsBootstrapV5)
+const isMediumOrSmallerScreen = breakpoints.smallerOrEqual('md')
+const isLargerThanMediumScreen = breakpoints.greater('md')
 
 const props = defineProps({
   responses: {
@@ -21,6 +27,7 @@ const {
   responsesEnabled,
 } = storeToRefs(useDisplayStore())
 const {
+  sidebarOffcanvasShown,
   sidebarWidth,
   gitRepoLink,
   gitRepoLinkText,
@@ -35,7 +42,7 @@ const resizeRef = ref(null)
 const dragging = ref(false)
 const dragStart = () => dragging.value = true
 const dragMove = (event) => {
-  if (dragging.value) {
+  if (dragging.value && resizeRef.value) {
     sidebarWidth.value = event.x - (resizeRef.value.getBoundingClientRect().width / 2)
     event.preventDefault()
   }
@@ -48,12 +55,13 @@ const dragEnd = () => dragging.value = false
     @mousemove="dragMove" @touchmove="dragMove"
     @mouseup="dragEnd" @touchend="dragEnd"
   >
-    <SideBar class="sidebar vh-100"
+    <SideBar class="sidebar vh-100" v-if="isLargerThanMediumScreen"
       :style="{ width: `${sidebarWidth}px`}"
     />
-    <div ref="resizeRef" class="resize"
+    <div ref="resizeRef" class="resize" v-if="isLargerThanMediumScreen"
       @mousedown="dragStart" @touchstart="dragStart"
     />
+    <SideBarOffcanvas v-if="sidebarOffcanvasShown && isMediumOrSmallerScreen" />
     <InstallationSvg class="flex-grow-1 h-100" />
   </div>
 </template>

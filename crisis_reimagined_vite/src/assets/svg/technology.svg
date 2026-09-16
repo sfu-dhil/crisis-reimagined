@@ -20,8 +20,7 @@
     </g>
   </g>
   <rect y="83.52" width="288" height="564.48" fill="none"/>
-  <text transform="translate(71.11 275.76)" fill="#231f20" font-family="DazzleUnicase-Medium, &apos;Dazzle Unicase&apos;" font-size="36" font-weight="500"><tspan x="0" y="0" letter-spacing="-.04em">2</tspan><tspan x="21.56" y="0" letter-spacing="-.02em">1</tspan></text>
-  <line x1="124.52" y1="275.65" x2="175.74" y2="275.65" fill="none" stroke="#231f20" stroke-dasharray="6 3" stroke-miterlimit="10" stroke-width=".75"/>
+  <line x1="70" y1="275.65" x2="158" y2="275.65" fill="none" stroke="#231f20" stroke-dasharray="6 3" stroke-miterlimit="10" stroke-width=".75"/>
   <g>
     <path d="M105.85,27.74h7v1.4h-5.46v8.26h4.76v1.4h-6.3v-11.07Z" fill="#231f20"/>
     <path d="M121.12,38.8h-1.85l-3.47-4.9v4.9h-1.54v-11.07h6.3v6.16h-2.98l3.54,4.9ZM115.79,32.5h3.22v-3.36h-3.22v3.36Z" fill="#231f20"/>

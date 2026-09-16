@@ -23,8 +23,7 @@
       </g>
       <g>
         <g>
-          <text transform="translate(66.78 290.93)" fill="#231f20" font-family="DazzleUnicase-Medium, &apos;Dazzle Unicase&apos;" font-size="36" font-weight="500"><tspan x="0" y="0" letter-spacing="-.03em">2</tspan><tspan x="21.76" y="0" letter-spacing="-.02em">1</tspan></text>
-          <line x1="101.71" y1="290.83" x2="152.92" y2="290.83" fill="none" stroke="#231f20" stroke-dasharray="6 3" stroke-miterlimit="10" stroke-width=".75"/>
+          <line x1="66.78" y1="290.83" x2="152.92" y2="290.83" fill="none" stroke="#231f20" stroke-dasharray="6 3" stroke-miterlimit="10" stroke-width=".75"/>
         </g>
         <g mix-blend-mode="multiply">
           <path d="M102.08,42.91h7v1.4h-5.46v8.26h4.76v1.4h-6.3v-11.07Z" fill="#231f20"/>

@@ -336,21 +336,21 @@ const props = defineProps({
     </g>
     <foreignObject transform="translate(63 254)" width="110" height="50">
       <input
-        name="year" type="number" min="2000" max="2199"
+        name="year" type="number" min="2027" max="2199"
         class="form-control" required
-        v-maska="{ mask: '2c##', tokens: { c: { pattern: /[01]/ } } }" placeholder="2000" inputmode="numeric"
+        v-maska="{ mask: '2c##', tokens: { c: { pattern: /[01]/ } } }" placeholder="2027" inputmode="numeric"
         v-model="object.year"
         :disabled="!editMode"
         aria-describedby="yearHelp"
       />
     </foreignObject>
-    <foreignObject transform="translate(48 281)" width="200" height="50" v-if="editMode">
-      <div id="yearHelp" class="form-text"><i class="bi bi-info-circle"></i> Enter a year between 2000 - 2199</div>
+    <foreignObject transform="translate(24 246.64)" width="200" height="50" v-if="editMode">
+      <div id="yearHelp" class="form-text"><i class="bi bi-info-circle"></i> Enter a year between 2027 - 2199</div>
     </foreignObject>
     <foreignObject transform="translate(9 345)" width="270" height="110">
       <textarea
         class="form-control w-100 h-100"
-        name="question_1" required placeholder="Leave response here"
+        name="question_1" required placeholder="Leave your response here"
         v-model="object.question_1"
         :disabled="!editMode"
       ></textarea>
@@ -358,7 +358,7 @@ const props = defineProps({
     <foreignObject transform="translate(9 505)" width="270" :height="editMode ? 125 : 135">
       <textarea
         class="form-control w-100 h-100"
-        name="question_2" required placeholder="Leave response here"
+        name="question_2" required placeholder="Leave your response here"
         v-model="object.question_2"
         :disabled="!editMode"
       ></textarea>

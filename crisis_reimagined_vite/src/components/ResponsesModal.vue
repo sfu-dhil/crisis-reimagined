@@ -118,7 +118,7 @@ onMounted(() => {
             <span class="control-prev-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Previous</span>
           </button>
-          <div class="container-xxl d-flex flex-column my-3" v-if="currentObject" :key="currentObject.id">
+          <div class="takeaway-container d-flex flex-column mx-auto my-3" v-if="currentObject" :key="currentObject.id">
             <div class="alert alert-info mb-3" role="alert" v-if="currentObject.pending">
               Your response is awaiting approval
             </div>
@@ -186,6 +186,9 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
+.takeaway-container {
+  max-width: 800px;
+}
 .modal {
   --bs-modal-bg: transparent;
   .btn-close {

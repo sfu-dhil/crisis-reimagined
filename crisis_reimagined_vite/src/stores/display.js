@@ -1,3 +1,4 @@
+import PrivacyPolicy from '@/components/sidebar/PrivacyPolicy.vue'
 import { defineStore } from 'pinia'
 
 export const useDisplayStore = defineStore('display', {
@@ -31,12 +32,13 @@ export const useDisplayStore = defineStore('display', {
 
 export const SideBarNavTypes = Object.freeze({
   about: 'about',
-  timeline: 'timeline',
-  crises: 'crises',
+  futures: 'futures',
+  privacyPolicy: 'privacyPolicy',
 })
 
 export const useDisplaySidebarStore = defineStore('display-sidebar', {
   state: () => ({
+    sidebarOffcanvasShown: false,
     sidebarWidth: 400,
     gitRepoLink: null,
     gitRepoLinkText: null,
@@ -44,18 +46,21 @@ export const useDisplaySidebarStore = defineStore('display-sidebar', {
   }),
   getters: {
     aboutActive: (state) => state.activeNav === SideBarNavTypes.about,
-    timelineActive: (state) => state.activeNav === SideBarNavTypes.timeline,
-    crisesActive: (state) => state.activeNav === SideBarNavTypes.crises,
+    futuresActive: (state) => state.activeNav === SideBarNavTypes.futures,
+    privacyPolicyActive: (state) => state.activeNav === SideBarNavTypes.privacyPolicy,
   },
   actions: {
+    showSidebarOffcanvas() {
+      this.sidebarOffcanvasShown = true
+    },
     showAbout() {
       this.activeNav = SideBarNavTypes.about
     },
-    showTimeline() {
-      this.activeNav = SideBarNavTypes.timeline
+    showFutures() {
+      this.activeNav = SideBarNavTypes.futures
     },
-    showCrisis() {
-      this.activeNav = SideBarNavTypes.crises
+    showPrivacyPolicy() {
+      this.activeNav = SideBarNavTypes.privacyPolicy
     },
   },
   persist: {

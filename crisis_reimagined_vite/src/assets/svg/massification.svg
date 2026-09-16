@@ -22,8 +22,7 @@
   </g>
   <g>
     <g>
-      <text transform="translate(75.01 291.13)" fill="#231f20" font-family="DazzleUnicase-Medium, &apos;Dazzle Unicase&apos;" font-size="36" font-weight="500"><tspan x="0" y="0" letter-spacing="-.04em">2</tspan><tspan x="21.56" y="0" letter-spacing="-.02em">0</tspan></text>
-      <line x1="128.43" y1="291.03" x2="179.64" y2="291.03" fill="none" stroke="#231f20" stroke-dasharray="6 3" stroke-miterlimit="10" stroke-width=".75"/>
+      <line x1="75" y1="291.03" x2="160" y2="291.03" fill="none" stroke="#231f20" stroke-dasharray="6 3" stroke-miterlimit="10" stroke-width=".75"/>
     </g>
     <g>
       <path d="M108.32,43.11h7v1.4h-5.46v8.26h4.76v1.4h-6.3v-11.07Z" fill="#231f20"/>

@@ -55,7 +55,7 @@ onMounted(() => {
       <div class="modal-content">
         <div class="modal-body p-0">
           <button type="button" class="btn-close bg-white position-fixed z-3 top-0 end-0 m-3 p-2" data-bs-dismiss="modal" aria-label="Close"></button>
-          <form ref="formRef" class="container-xxl d-flex flex-column my-3">
+          <form ref="formRef" class="takeaway-container d-flex flex-column mx-auto my-3">
             <div class="alert alert-info mt-3" role="alert" v-if="!responsesEnabled">
               New responses are currently not being collected
             </div>
@@ -107,6 +107,9 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
+.takeaway-container {
+  max-width: 800px;
+}
 .modal {
   --bs-modal-bg: transparent;
   .btn-close {
