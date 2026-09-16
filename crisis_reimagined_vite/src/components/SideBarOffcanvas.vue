@@ -23,7 +23,7 @@ onMounted(() => {
 
 <template>
   <div ref="offCanvasRef" class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1">
-    <SideBar :showCloseButton="true" class="w-100"  v-if="shown" />
+    <SideBar :showCloseButton="true" class="vh-100 w-100" v-if="shown" />
   </div>
 </template>
 
