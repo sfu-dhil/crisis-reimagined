@@ -55,7 +55,7 @@ onMounted(() => {
       <div class="modal-content">
         <div class="modal-body p-0">
           <button type="button" class="btn-close bg-white position-fixed z-3 top-0 end-0 m-3 p-2" data-bs-dismiss="modal" aria-label="Close"></button>
-          <form ref="formRef" class="takeaway-container d-flex flex-column mx-auto my-3">
+          <form ref="formRef" class="takeaway-container d-flex flex-column mx-auto">
             <div class="alert alert-info mt-3" role="alert" v-if="!responsesEnabled">
               New responses are currently not being collected
             </div>
@@ -84,14 +84,14 @@ onMounted(() => {
                 v-if="resourceType === ResponseResourceTypes.technology"
                 :key="popupIncrement" :edit-mode="!!responsesEnabled"
               />
-              <div class="d-none d-sm-block position-absolute bottom-0 end-0">
+              <div class="d-none d-lg-block position-absolute bottom-0 end-0">
                 <button
-                  type="submit" class="btn btn-primary btn-lg px-5 me-3 mb-3 ms-auto"
+                  type="submit" class="btn btn-primary btn-lg px-5 me-3 ms-auto"
                   @click="submit"
                   :disabled="!responsesEnabled"
                 >Save</button>
               </div>
-              <div class="d-block d-sm-none text-end w-100">
+              <div class="d-block d-lg-none text-end w-100 mt-2">
                 <button
                   type="submit" class="btn btn-primary btn-lg px-5"
                   @click="submit"

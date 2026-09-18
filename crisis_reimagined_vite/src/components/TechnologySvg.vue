@@ -13,7 +13,7 @@ const props = defineProps({
 </script>
 
 <template>
-  <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 288 648">
+  <svg xmlns="http://www.w3.org/2000/svg" width="100%" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 288 648">
     <rect width="100%" height="100%" fill="white" stroke="black" />
     <defs>
       <clipPath id="b">
