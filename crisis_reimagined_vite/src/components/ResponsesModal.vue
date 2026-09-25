@@ -3,7 +3,7 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { toggleModal } from '../_utils.js'
 import GeopoliticsSvg from './GeopoliticsSvg.vue'
-import KnowledgeSVG from './KnowledgeSvg.vue'
+import KnowledgeSvg from './KnowledgeSvg.vue'
 import MarketizationSvg from './MarketizationSvg.vue'
 import MassificationSvg from './MassificationSvg.vue'
 import RestitutionSvg from './RestitutionSvg.vue'
@@ -137,7 +137,7 @@ onMounted(() => {
                 v-if="resourceType === ResponseResourceTypes.geopolitics"
                 :key="currentObject.id" :object="currentObject"
               />
-              <KnowledgeSVG class="w-100"
+              <KnowledgeSvg class="w-100"
                 v-if="resourceType === ResponseResourceTypes.knowledge"
                 :key="currentObject.id" :object="currentObject"
               />

@@ -9,6 +9,12 @@ import { useDisplayStore, useDisplayInstallationStore, useDisplaySidebarStore } 
 import { ResponseResourceTypes } from '../_resourceTypes.js'
 import QuestionnaireModal from './QuestionnaireModal.vue'
 import ResponsesModal from './ResponsesModal.vue'
+import KnowledgeSvg from './KnowledgeSvg.vue'
+import MarketizationSvg from './MarketizationSvg.vue'
+import MassificationSvg from './MassificationSvg.vue'
+import RestitutionSvg from './RestitutionSvg.vue'
+import TechnologySvg from './TechnologySvg.vue'
+import GeopoliticsSvg from './GeopoliticsSvg.vue'
 
 const breakpoints = useBreakpoints(breakpointsBootstrapV5)
 const isMediumOrSmallerScreen = breakpoints.smallerOrEqual('md')
@@ -986,9 +992,9 @@ onUnmounted(() => {
           @touchstart.prevent="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.knowledge)"
         >
           <title>Click to fill out the knowledge questionnaire</title>
-          <image class="takeaway" href="../assets/svg/knowledge.svg" width="355" height="800" transform="translate(0 0)" />
-          <image class="takeaway" href="../assets/svg/knowledge.svg" width="355" height="800" transform="translate(1 1)" />
-          <image class="takeaway" href="../assets/svg/knowledge.svg" width="355" height="800" transform="translate(2 2)" />
+          <KnowledgeSvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
+          <KnowledgeSvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
+          <KnowledgeSvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
         </g>
         <g
           class="questionnaire" transform="translate(2500, 200)"
@@ -996,9 +1002,9 @@ onUnmounted(() => {
           @touchstart.prevent="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.geopolitics)"
         >
           <title>Click to fill out the geopolitics questionnaire</title>
-          <image class="takeaway" href="../assets/svg/geopolitics.svg" width="355" height="800" transform="translate(0 0)" />
-          <image class="takeaway" href="../assets/svg/geopolitics.svg" width="355" height="800" transform="translate(1 1)" />
-          <image class="takeaway" href="../assets/svg/geopolitics.svg" width="355" height="800" transform="translate(2 2)" />
+          <GeopoliticsSvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
+          <GeopoliticsSvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
+          <GeopoliticsSvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
         </g>
         <g
           class="questionnaire" transform="translate(7925, 1625)"
@@ -1006,9 +1012,9 @@ onUnmounted(() => {
           @touchstart.prevent="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.marketization)"
         >
           <title>Click to fill out the marketization questionnaire</title>
-          <image class="takeaway" href="../assets/svg/marketization.svg" width="355" height="800" transform="translate(0 0)" />
-          <image class="takeaway" href="../assets/svg/marketization.svg" width="355" height="800" transform="translate(1 1)" />
-          <image class="takeaway" href="../assets/svg/marketization.svg" width="355" height="800" transform="translate(2 2)" />
+          <MarketizationSvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
+          <MarketizationSvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
+          <MarketizationSvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
         </g>
         <g
           class="questionnaire" transform="translate(7000, 725)"
@@ -1016,9 +1022,9 @@ onUnmounted(() => {
           @touchstart.prevent="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.massification)"
         >
           <title>Click to fill out the massification questionnaire</title>
-          <image class="takeaway" href="../assets/svg/massification.svg" width="355" height="800" transform="translate(0 0)" />
-          <image class="takeaway" href="../assets/svg/massification.svg" width="355" height="800" transform="translate(1 1)" />
-          <image class="takeaway" href="../assets/svg/massification.svg" width="355" height="800" transform="translate(2 2)" />
+          <MassificationSvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
+          <MassificationSvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
+          <MassificationSvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
         </g>
         <g
           class="questionnaire" transform="translate(3050, 1500)"
@@ -1026,9 +1032,9 @@ onUnmounted(() => {
           @touchstart.prevent="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.restitution)"
         >
           <title>Click to fill out the restitution questionnaire</title>
-          <image class="takeaway" href="../assets/svg/restitution.svg" width="355" height="781.5" transform="translate(0 0)" />
-          <image class="takeaway" href="../assets/svg/restitution.svg" width="355" height="781.5" transform="translate(1 1)" />
-          <image class="takeaway" href="../assets/svg/restitution.svg" width="355" height="781.5" transform="translate(2 2)" />
+          <RestitutionSvg class="takeaway" width="355" height="781.5" transform="translate(0 0)" :showContent="false" />
+          <RestitutionSvg class="takeaway" width="355" height="781.5" transform="translate(1 1)" :showContent="false" />
+          <RestitutionSvg class="takeaway" width="355" height="781.5" transform="translate(2 2)" :showContent="false" />
         </g>
         <g
           class="questionnaire" transform="translate(5650, 350)"
@@ -1036,9 +1042,9 @@ onUnmounted(() => {
           @touchstart.prevent="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.technology)"
         >
           <title>Click to fill out the technology questionnaire</title>
-          <image class="takeaway" href="../assets/svg/technology.svg" width="355" height="800" transform="translate(0 0)" />
-          <image class="takeaway" href="../assets/svg/technology.svg" width="355" height="800" transform="translate(1 1)" />
-          <image class="takeaway" href="../assets/svg/technology.svg" width="355" height="800" transform="translate(2 2)" />
+          <TechnologySvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
+          <TechnologySvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
+          <TechnologySvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
         </g>
         <g
           v-if="hasKnowledgeObjects"
@@ -1047,9 +1053,9 @@ onUnmounted(() => {
           @touchstart.prevent="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.knowledge)"
         >
           <title>Click to view the knowledge responses</title>
-          <image class="takeaway" href="../assets/svg/knowledge.svg" width="355" height="800" transform="translate(0 0)" />
-          <image class="takeaway" href="../assets/svg/knowledge.svg" width="355" height="800" transform="translate(1 1)" />
-          <image class="takeaway" href="../assets/svg/knowledge.svg" width="355" height="800" transform="translate(2 2)" />
+          <KnowledgeSvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
+          <KnowledgeSvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
+          <KnowledgeSvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
         </g>
         <g
           v-if="hasGeopoliticsObjects"
@@ -1058,9 +1064,9 @@ onUnmounted(() => {
           @touchstart.prevent="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.geopolitics)"
         >
           <title>Click to view the geopolitics responses</title>
-          <image class="takeaway" href="../assets/svg/geopolitics.svg" width="355" height="800" transform="translate(0 0)" />
-          <image class="takeaway" href="../assets/svg/geopolitics.svg" width="355" height="800" transform="translate(1 1)" />
-          <image class="takeaway" href="../assets/svg/geopolitics.svg" width="355" height="800" transform="translate(2 2)" />
+          <GeopoliticsSvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
+          <GeopoliticsSvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
+          <GeopoliticsSvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
         </g>
         <g
           v-if="hasMarketizationObjects"
@@ -1069,9 +1075,9 @@ onUnmounted(() => {
           @touchstart.prevent="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.marketization)"
         >
           <title>Click to view the marketization responses</title>
-          <image class="takeaway" href="../assets/svg/marketization.svg" width="355" height="800" transform="translate(0 0)" />
-          <image class="takeaway" href="../assets/svg/marketization.svg" width="355" height="800" transform="translate(1 1)" />
-          <image class="takeaway" href="../assets/svg/marketization.svg" width="355" height="800" transform="translate(2 2)" />
+          <MarketizationSvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
+          <MarketizationSvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
+          <MarketizationSvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
         </g>
         <g
           v-if="hasMassificationObjects"
@@ -1080,9 +1086,9 @@ onUnmounted(() => {
           @touchstart.prevent="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.massification)"
         >
           <title>Click to view the massification responses</title>
-          <image class="takeaway" href="../assets/svg/massification.svg" width="355" height="800" transform="translate(0 0)" />
-          <image class="takeaway" href="../assets/svg/massification.svg" width="355" height="800" transform="translate(1 1)" />
-          <image class="takeaway" href="../assets/svg/massification.svg" width="355" height="800" transform="translate(2 2)" />
+          <MassificationSvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
+          <MassificationSvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
+          <MassificationSvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
         </g>
         <g
           v-if="hasRestitutionObjects"
@@ -1091,9 +1097,9 @@ onUnmounted(() => {
           @touchstart.prevent="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.restitution)"
         >
           <title>Click to view the restitution responses</title>
-          <image class="takeaway" href="../assets/svg/restitution.svg" width="355" height="781.5" transform="translate(0 0)" />
-          <image class="takeaway" href="../assets/svg/restitution.svg" width="355" height="781.5" transform="translate(1 1)" />
-          <image class="takeaway" href="../assets/svg/restitution.svg" width="355" height="781.5" transform="translate(2 2)" />
+          <RestitutionSvg class="takeaway" width="355" height="781.5" transform="translate(0 0)" :showContent="false" />
+          <RestitutionSvg class="takeaway" width="355" height="781.5" transform="translate(1 1)" :showContent="false" />
+          <RestitutionSvg class="takeaway" width="355" height="781.5" transform="translate(2 2)" :showContent="false" />
         </g>
         <g
           v-if="hasTechnologyObjects"
@@ -1102,9 +1108,9 @@ onUnmounted(() => {
           @touchstart.prevent="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.technology)"
         >
           <title>Click to view the technology responses</title>
-          <image class="takeaway" href="../assets/svg/technology.svg" width="355" height="800" transform="translate(0 0)" />
-          <image class="takeaway" href="../assets/svg/technology.svg" width="355" height="800" transform="translate(1 1)" />
-          <image class="takeaway" href="../assets/svg/technology.svg" width="355" height="800" transform="translate(2 2)" />
+          <TechnologySvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
+          <TechnologySvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
+          <TechnologySvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
         </g>
       </g>
     </svg>

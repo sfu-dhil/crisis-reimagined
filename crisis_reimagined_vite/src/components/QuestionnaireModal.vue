@@ -3,7 +3,7 @@ import { ref, onMounted, watch, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
 import { _submitForm, toggleModal } from '../_utils.js'
 import GeopoliticsSvg from './GeopoliticsSvg.vue'
-import KnowledgeSVG from './KnowledgeSvg.vue'
+import KnowledgeSvg from './KnowledgeSvg.vue'
 import MarketizationSvg from './MarketizationSvg.vue'
 import MassificationSvg from './MassificationSvg.vue'
 import RestitutionSvg from './RestitutionSvg.vue'
@@ -62,27 +62,27 @@ onMounted(() => {
             <div class="position-relative flex-grow-1 w-100">
               <GeopoliticsSvg class="w-100"
                 v-if="resourceType === ResponseResourceTypes.geopolitics"
-                :key="popupIncrement" :edit-mode="!!responsesEnabled"
+                :key="popupIncrement" :editMode="!!responsesEnabled"
               />
-              <KnowledgeSVG class="w-100"
+              <KnowledgeSvg class="w-100"
                 v-if="resourceType === ResponseResourceTypes.knowledge"
-                :key="popupIncrement" :edit-mode="!!responsesEnabled"
+                :key="popupIncrement" :editMode="!!responsesEnabled"
               />
               <MarketizationSvg class="w-100"
                 v-if="resourceType === ResponseResourceTypes.marketization"
-                :key="popupIncrement" :edit-mode="!!responsesEnabled"
+                :key="popupIncrement" :editMode="!!responsesEnabled"
               />
               <MassificationSvg class="w-100"
                 v-if="resourceType === ResponseResourceTypes.massification"
-                :key="popupIncrement" :edit-mode="!!responsesEnabled"
+                :key="popupIncrement" :editMode="!!responsesEnabled"
               />
               <RestitutionSvg class="w-100"
                 v-if="resourceType === ResponseResourceTypes.restitution"
-                :key="popupIncrement" :edit-mode="!!responsesEnabled"
+                :key="popupIncrement" :editMode="!!responsesEnabled"
               />
               <TechnologySvg class="w-100"
                 v-if="resourceType === ResponseResourceTypes.technology"
-                :key="popupIncrement" :edit-mode="!!responsesEnabled"
+                :key="popupIncrement" :editMode="!!responsesEnabled"
               />
               <div class="d-none d-lg-block position-absolute bottom-0 end-0">
                 <button
