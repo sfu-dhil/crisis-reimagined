@@ -1,20 +1,33 @@
-import PrivacyPolicy from '@/components/sidebar/PrivacyPolicy.vue'
 import { defineStore } from 'pinia'
 
 export const useDisplayStore = defineStore('display', {
   state: () => ({
     responsesEnabled: true,
 
+    welcomeModalShown: false,
     questionnaireModalShown: false,
     responsesModalShown: false,
     resourceType: null,
   }),
   getters: {},
   actions: {
+    forceShowInitialWelcomeMessage() {
+      if (!document.cookie.split("; ").find((row) => row.startsWith("crisisReimaginedShowInitialWelcomeModal"))) {
+        // set cookie to expire 1 day from now
+        const exp = (new Date(Date.now() + 86400e3)).toUTCString()
+        document.cookie = `crisisReimaginedShowInitialWelcomeModal=true; expires=${exp}; SameSite=None; Secure`
+        this.welcomeModalShown = true
+      }
+    },
     _reset() {
+      this.welcomeModalShown = false
       this.questionnaireModalShown = false
       this.responsesModalShown = false
       this.resourceType = null
+    },
+    showWelcomesModal() {
+      this._reset()
+      this.welcomeModalShown = true
     },
     showQuestionnaireModal(resourceType) {
       this._reset()

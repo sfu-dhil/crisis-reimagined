@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch, onUnmounted, onMounted, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useFullscreen, breakpointsBootstrapV5, useBreakpoints } from '@vueuse/core'
+import { useMouseInElement, useFullscreen, useWindowSize, breakpointsBootstrapV5, useBreakpoints } from '@vueuse/core'
 import panzoom from 'panzoom'
 import { resetTooltips } from '../_utils.js'
 import { useResponseStore } from '../stores/responses.js'
@@ -9,6 +9,7 @@ import { useDisplayStore, useDisplayInstallationStore, useDisplaySidebarStore } 
 import { ResponseResourceTypes } from '../_resourceTypes.js'
 import QuestionnaireModal from './QuestionnaireModal.vue'
 import ResponsesModal from './ResponsesModal.vue'
+import WelcomeModal from './WelcomeModal.vue'
 import KnowledgeSvg from './KnowledgeSvg.vue'
 import MarketizationSvg from './MarketizationSvg.vue'
 import MassificationSvg from './MassificationSvg.vue'
@@ -19,7 +20,9 @@ import GeopoliticsSvg from './GeopoliticsSvg.vue'
 const breakpoints = useBreakpoints(breakpointsBootstrapV5)
 const isMediumOrSmallerScreen = breakpoints.smallerOrEqual('md')
 const isLargerThanMediumScreen = breakpoints.greater('md')
+const isExtraLargeOrLarger = breakpoints.greaterOrEqual('xl')
 
+const SVG_WIDTH = 11376
 const SVG_HEIGHT = 3456
 const MAX_ZOOM = 6
 const MIN_ZOOM = 0.2
@@ -38,21 +41,52 @@ const {
 const {
   questionnaireModalShown,
   responsesModalShown,
+  welcomeModalShown,
 } = storeToRefs(useDisplayStore())
 
 const articleRef = ref(null)
 const { isFullscreen, toggle: toggleFullscreen } = useFullscreen(articleRef)
 watch(isFullscreen, (oldValue, newValue) => {
-  if (newValue !== oldValue) { nextTick(() => resetTooltips(articleRef.value)) }
+  if (newValue !== oldValue) { nextTick(() =>
+    resetTooltips(articleRef.value))
+    updateMiniMap()
+  }
 })
 watch(isLargerThanMediumScreen, (oldValue, newValue) => {
-  if (newValue !== oldValue) { nextTick(() => resetTooltips(articleRef.value)) }
+  if (newValue !== oldValue) { nextTick(() =>
+    resetTooltips(articleRef.value))
+    updateMiniMap()
+  }
 })
 const svgRef = ref(null)
 const svgGroupRef = ref(null)
 const panZoomInstance = ref(null)
 const grabbing = ref(false)
+const miniMapContainer = ref(null)
+const miniMapSvg = ref(null)
+const miniMapBox = ref(null)
+const { elementX: miniMapSvgMouseX, elementY: miniMapSvgMouseY } = useMouseInElement(miniMapSvg)
+const updateMiniMap = () => {
+  const { width: miniMapWidth } = miniMapContainer.value.getBoundingClientRect()
+  const mapRatio = miniMapWidth / SVG_WIDTH
+  const { scale } = panZoomInstance.value.getTransform()
+  const multiplier =  mapRatio / scale
 
+  const { width: svgWidth, height: svgHeight } = svgRef.value.getBoundingClientRect()
+  miniMapBox.value.style.width = `${svgWidth * multiplier}px`
+  miniMapBox.value.style.height = `${svgHeight * multiplier}px`
+  const { x, y } = panZoomInstance.value.getTransform()
+  miniMapBox.value.style.transform = `translate(${-x * multiplier}px, ${-y * multiplier}px)`;
+}
+const miniMapMoveTo = () => {
+  const { width: miniMapWidth } = miniMapContainer.value.getBoundingClientRect()
+  const mapRatio = miniMapWidth / SVG_WIDTH
+  const { scale } = panZoomInstance.value.getTransform()
+  const multiplier =  mapRatio / scale
+
+  const { width: svgWidth, height: svgHeight } = svgRef.value.getBoundingClientRect()
+  panZoomInstance.value.smoothMoveTo(svgWidth/2 - (miniMapSvgMouseX.value / multiplier), svgHeight/2 - (miniMapSvgMouseY.value / multiplier))
+}
 const panUp = () => {
   const {x, y} = panZoomInstance.value.getTransform()
   panZoomInstance.value.smoothMoveTo(x, y+100)
@@ -125,8 +159,20 @@ watch(questionnaireModalShown, (isShown) => {
 watch(responsesModalShown, (isShown) => {
   if (isShown && isFullscreen.value) { fixModalBackdrop() }
 })
+watch(welcomeModalShown, (isShown) => {
+  if (isShown && isFullscreen.value) { fixModalBackdrop() }
+})
+const { width: windowWidth, height: windowHeight } = useWindowSize()
+watch([windowWidth, windowHeight], ([newWidth, newHeight], [oldWidth, oldHeight]) => {
+  if (newWidth !== oldWidth || newHeight !== oldHeight) {
+    nextTick(() => updateMiniMap())
+  }
+})
 onMounted(() => {
-  nextTick(() => resetTooltips(articleRef.value))
+  nextTick(() => {
+    resetTooltips(articleRef.value)
+    updateMiniMap()
+  })
   const INITIAL_ZOOM =  svgRef.value.clientHeight / SVG_HEIGHT
   panZoomInstance.value = panzoom(svgGroupRef.value, {
     maxZoom: MAX_ZOOM,
@@ -145,8 +191,9 @@ onMounted(() => {
       return !!isQuestionnaire || !!isLink
     },
   })
-  panZoomInstance.value.on('panstart', (e) => grabbing.value = true)
-  panZoomInstance.value.on('panend', (e) => grabbing.value = false)
+  panZoomInstance.value.on('panstart', (event) => grabbing.value = true)
+  panZoomInstance.value.on('panend', (event) => grabbing.value = false)
+  panZoomInstance.value.on('transform', (event) => updateMiniMap())
 })
 onUnmounted(() => {
   if (panZoomInstance.value) {
@@ -161,7 +208,7 @@ onUnmounted(() => {
       :class="{ grabbing: grabbing }" class="position-relative"
     >
       <g ref="svgGroupRef">
-        <g isolation="isolate" width="11376" height="3456">
+        <g id="svg-content" isolation="isolate" width="11376" height="3456">
           <g>
             <line x1="1492.85" y1="2862.98" x2="1492.85" y2="2860.98" fill="none" stroke="#a57e2d" stroke-miterlimit="10" stroke-width="3"/>
             <line x1="1492.85" y1="2851" x2="1492.85" y2="6.8" fill="none" stroke="#a57e2d" stroke-dasharray="3.99 9.98" stroke-miterlimit="10" stroke-width="3"/>
@@ -985,168 +1032,179 @@ onUnmounted(() => {
           <g mix-blend-mode="multiply">
             <line x1="5301.64" y1="354.19" x2="5301.64" y2="350.67" fill="none" stroke="#a57e2d" stroke-dasharray="3.52" stroke-miterlimit="10" stroke-width="3"/>
           </g>
-        </g>
-        <g
-          class="questionnaire" transform="translate(1700, 1950)"
-          @click="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.knowledge)"
-          @touchstart.prevent="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.knowledge)"
-        >
-          <title>Click to fill out the knowledge questionnaire</title>
-          <KnowledgeSvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
-          <KnowledgeSvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
-          <KnowledgeSvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
-        </g>
-        <g
-          class="questionnaire" transform="translate(2500, 200)"
-          @click="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.geopolitics)"
-          @touchstart.prevent="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.geopolitics)"
-        >
-          <title>Click to fill out the geopolitics questionnaire</title>
-          <GeopoliticsSvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
-          <GeopoliticsSvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
-          <GeopoliticsSvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
-        </g>
-        <g
-          class="questionnaire" transform="translate(7925, 1625)"
-          @click="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.marketization)"
-          @touchstart.prevent="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.marketization)"
-        >
-          <title>Click to fill out the marketization questionnaire</title>
-          <MarketizationSvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
-          <MarketizationSvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
-          <MarketizationSvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
-        </g>
-        <g
-          class="questionnaire" transform="translate(7000, 725)"
-          @click="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.massification)"
-          @touchstart.prevent="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.massification)"
-        >
-          <title>Click to fill out the massification questionnaire</title>
-          <MassificationSvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
-          <MassificationSvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
-          <MassificationSvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
-        </g>
-        <g
-          class="questionnaire" transform="translate(3050, 1500)"
-          @click="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.restitution)"
-          @touchstart.prevent="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.restitution)"
-        >
-          <title>Click to fill out the restitution questionnaire</title>
-          <RestitutionSvg class="takeaway" width="355" height="781.5" transform="translate(0 0)" :showContent="false" />
-          <RestitutionSvg class="takeaway" width="355" height="781.5" transform="translate(1 1)" :showContent="false" />
-          <RestitutionSvg class="takeaway" width="355" height="781.5" transform="translate(2 2)" :showContent="false" />
-        </g>
-        <g
-          class="questionnaire" transform="translate(5650, 350)"
-          @click="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.technology)"
-          @touchstart.prevent="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.technology)"
-        >
-          <title>Click to fill out the technology questionnaire</title>
-          <TechnologySvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
-          <TechnologySvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
-          <TechnologySvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
-        </g>
-        <g
-          v-if="hasKnowledgeObjects"
-          class="responses" transform="translate(10900, 1375)"
-          @click="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.knowledge)"
-          @touchstart.prevent="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.knowledge)"
-        >
-          <title>Click to view the knowledge responses</title>
-          <KnowledgeSvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
-          <KnowledgeSvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
-          <KnowledgeSvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
-        </g>
-        <g
-          v-if="hasGeopoliticsObjects"
-          class="responses" transform="translate(9125, 2300)"
-          @click="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.geopolitics)"
-          @touchstart.prevent="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.geopolitics)"
-        >
-          <title>Click to view the geopolitics responses</title>
-          <GeopoliticsSvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
-          <GeopoliticsSvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
-          <GeopoliticsSvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
-        </g>
-        <g
-          v-if="hasMarketizationObjects"
-          class="responses" transform="translate(9775, 700)"
-          @click="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.marketization)"
-          @touchstart.prevent="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.marketization)"
-        >
-          <title>Click to view the marketization responses</title>
-          <MarketizationSvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
-          <MarketizationSvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
-          <MarketizationSvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
-        </g>
-        <g
-          v-if="hasMassificationObjects"
-          class="responses" transform="translate(8950, 1200)"
-          @click="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.massification)"
-          @touchstart.prevent="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.massification)"
-        >
-          <title>Click to view the massification responses</title>
-          <MassificationSvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
-          <MassificationSvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
-          <MassificationSvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
-        </g>
-        <g
-          v-if="hasRestitutionObjects"
-          class="responses" transform="translate(10350, 2125)"
-          @click="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.restitution)"
-          @touchstart.prevent="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.restitution)"
-        >
-          <title>Click to view the restitution responses</title>
-          <RestitutionSvg class="takeaway" width="355" height="781.5" transform="translate(0 0)" :showContent="false" />
-          <RestitutionSvg class="takeaway" width="355" height="781.5" transform="translate(1 1)" :showContent="false" />
-          <RestitutionSvg class="takeaway" width="355" height="781.5" transform="translate(2 2)" :showContent="false" />
-        </g>
-        <g
-          v-if="hasTechnologyObjects"
-          class="responses" transform="translate(9550, 1700)"
-          @click="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.technology)"
-          @touchstart.prevent="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.technology)"
-        >
-          <title>Click to view the technology responses</title>
-          <TechnologySvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
-          <TechnologySvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
-          <TechnologySvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
+          <g
+            class="questionnaire" transform="translate(1700, 1950)"
+            @click="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.knowledge)"
+            @touchstart.prevent="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.knowledge)"
+          >
+            <title>Click to fill out the knowledge questionnaire</title>
+            <KnowledgeSvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
+            <KnowledgeSvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
+            <KnowledgeSvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
+          </g>
+          <g
+            class="questionnaire" transform="translate(2500, 200)"
+            @click="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.geopolitics)"
+            @touchstart.prevent="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.geopolitics)"
+          >
+            <title>Click to fill out the geopolitics questionnaire</title>
+            <GeopoliticsSvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
+            <GeopoliticsSvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
+            <GeopoliticsSvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
+          </g>
+          <g
+            class="questionnaire" transform="translate(7925, 1625)"
+            @click="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.marketization)"
+            @touchstart.prevent="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.marketization)"
+          >
+            <title>Click to fill out the marketization questionnaire</title>
+            <MarketizationSvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
+            <MarketizationSvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
+            <MarketizationSvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
+          </g>
+          <g
+            class="questionnaire" transform="translate(7000, 725)"
+            @click="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.massification)"
+            @touchstart.prevent="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.massification)"
+          >
+            <title>Click to fill out the massification questionnaire</title>
+            <MassificationSvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
+            <MassificationSvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
+            <MassificationSvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
+          </g>
+          <g
+            class="questionnaire" transform="translate(3050, 1500)"
+            @click="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.restitution)"
+            @touchstart.prevent="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.restitution)"
+          >
+            <title>Click to fill out the restitution questionnaire</title>
+            <RestitutionSvg class="takeaway" width="355" height="781.5" transform="translate(0 0)" :showContent="false" />
+            <RestitutionSvg class="takeaway" width="355" height="781.5" transform="translate(1 1)" :showContent="false" />
+            <RestitutionSvg class="takeaway" width="355" height="781.5" transform="translate(2 2)" :showContent="false" />
+          </g>
+          <g
+            class="questionnaire" transform="translate(5650, 350)"
+            @click="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.technology)"
+            @touchstart.prevent="() => useDisplayStore().showQuestionnaireModal(ResponseResourceTypes.technology)"
+          >
+            <title>Click to fill out the technology questionnaire</title>
+            <TechnologySvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
+            <TechnologySvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
+            <TechnologySvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
+          </g>
+          <g
+            v-if="hasKnowledgeObjects"
+            class="responses" transform="translate(10900, 1375)"
+            @click="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.knowledge)"
+            @touchstart.prevent="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.knowledge)"
+          >
+            <title>Click to view the knowledge responses</title>
+            <KnowledgeSvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
+            <KnowledgeSvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
+            <KnowledgeSvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
+          </g>
+          <g
+            v-if="hasGeopoliticsObjects"
+            class="responses" transform="translate(9125, 2300)"
+            @click="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.geopolitics)"
+            @touchstart.prevent="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.geopolitics)"
+          >
+            <title>Click to view the geopolitics responses</title>
+            <GeopoliticsSvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
+            <GeopoliticsSvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
+            <GeopoliticsSvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
+          </g>
+          <g
+            v-if="hasMarketizationObjects"
+            class="responses" transform="translate(9775, 700)"
+            @click="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.marketization)"
+            @touchstart.prevent="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.marketization)"
+          >
+            <title>Click to view the marketization responses</title>
+            <MarketizationSvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
+            <MarketizationSvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
+            <MarketizationSvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
+          </g>
+          <g
+            v-if="hasMassificationObjects"
+            class="responses" transform="translate(8950, 1200)"
+            @click="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.massification)"
+            @touchstart.prevent="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.massification)"
+          >
+            <title>Click to view the massification responses</title>
+            <MassificationSvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
+            <MassificationSvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
+            <MassificationSvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
+          </g>
+          <g
+            v-if="hasRestitutionObjects"
+            class="responses" transform="translate(10350, 2125)"
+            @click="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.restitution)"
+            @touchstart.prevent="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.restitution)"
+          >
+            <title>Click to view the restitution responses</title>
+            <RestitutionSvg class="takeaway" width="355" height="781.5" transform="translate(0 0)" :showContent="false" />
+            <RestitutionSvg class="takeaway" width="355" height="781.5" transform="translate(1 1)" :showContent="false" />
+            <RestitutionSvg class="takeaway" width="355" height="781.5" transform="translate(2 2)" :showContent="false" />
+          </g>
+          <g
+            v-if="hasTechnologyObjects"
+            class="responses" transform="translate(9550, 1700)"
+            @click="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.technology)"
+            @touchstart.prevent="() => useDisplayStore().showResponsesModal(ResponseResourceTypes.technology)"
+          >
+            <title>Click to view the technology responses</title>
+            <TechnologySvg class="takeaway" width="355" height="800" transform="translate(0 0)" :showContent="false" />
+            <TechnologySvg class="takeaway" width="355" height="800" transform="translate(1 1)" :showContent="false" />
+            <TechnologySvg class="takeaway" width="355" height="800" transform="translate(2 2)" :showContent="false" />
+          </g>
         </g>
       </g>
     </svg>
+    <div ref="miniMapContainer"
+      class="mini-map-container z-3 position-absolute overflow-hidden bottom-0 end-0 bg-white me-3 mb-5 border border-dark"
+      :class="{'d-none': !isExtraLargeOrLarger}"
+    >
+      <svg ref="miniMapSvg" width="100%" height="100%" @click="miniMapMoveTo">
+        <use href="#svg-content" class="mini-map-content pe-none" />
+      </svg>
+      <div ref="miniMapBox" class="mini-map-box position-absolute top-0 start-0 border border-primary pe-none">
+        <div class="bg-primary w-100 h-100"></div>
+      </div>
+    </div>
     <div class="z-3 position-absolute bottom-0 start-50 translate-middle-x btn-group text-center">
       <button @click="panUp"
-        type="button" class="btn btn-link text-light link-underline-opacity-0"
+        type="button" class="btn btn-link text-dark link-underline-opacity-0"
         data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Pan Up"
       >
         <i class="bi bi-arrow-up"></i>
       </button>
       <button @click="panDown"
-        type="button" class="btn btn-link text-light link-underline-opacity-0"
+        type="button" class="btn btn-link text-dark link-underline-opacity-0"
         data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Pan Down"
       >
         <i class="bi bi-arrow-down"></i>
       </button>
       <button @click="panLeft"
-        type="button" class="btn btn-link text-light link-underline-opacity-0"
+        type="button" class="btn btn-link text-dark link-underline-opacity-0"
         data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Pan Left"
       >
         <i class="bi bi-arrow-left"></i>
       </button>
       <button @click="panRight"
-        type="button" class="btn btn-link text-light link-underline-opacity-0"
+        type="button" class="btn btn-link text-dark link-underline-opacity-0"
         data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Pan Right"
       >
         <i class="bi bi-arrow-right"></i>
       </button>
       <button @click="zoomIn"
-        type="button" class="btn btn-link text-light link-underline-opacity-0"
+        type="button" class="btn btn-link text-dark link-underline-opacity-0"
         data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Zoom In"
       >
         <i class="bi bi-plus-lg"></i>
       </button>
       <button @click="zoomOut"
-        type="button" class="btn btn-link text-light link-underline-opacity-0"
+        type="button" class="btn btn-link text-dark link-underline-opacity-0"
         data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Zoom Out"
       >
         <i class="bi bi-dash-lg"></i>
@@ -1155,7 +1213,7 @@ onUnmounted(() => {
     <div class="z-3 position-absolute top-0 end-0 btn-group-vertical text-center">
       <button @click="() => { toggleFullscreen() }"
         v-if="isLargerThanMediumScreen"
-        type="button" class="btn btn-link text-light link-underline-opacity-0"
+        type="button" class="btn btn-link text-dark link-underline-opacity-0"
         data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Toggle Fullscreen Mode"
       >
         <i v-if="!isFullscreen" class="bi bi-fullscreen"></i>
@@ -1166,18 +1224,44 @@ onUnmounted(() => {
       v-if="isMediumOrSmallerScreen"
     >
       <button @click="() => { useDisplaySidebarStore().showSidebarOffcanvas() }"
-        type="button" class="btn btn-link text-light link-underline-opacity-0"
+        type="button" class="btn btn-link text-dark link-underline-opacity-0"
         data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Show Sidebar"
       >
         <i class="bi bi-card-list"></i>
       </button>
     </div>
+    <div class="z-3 position-absolute bottom-0 end-0 btn-group-vertical text-center">
+      <button @click="() => { useDisplayStore().showWelcomesModal() }"
+        type="button" class="btn btn-link text-dark link-underline-opacity-0"
+        data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Show Instructions"
+      >
+        <i class="bi bi-info-circle"></i>
+      </button>
+    </div>
     <QuestionnaireModal />
     <ResponsesModal />
+    <WelcomeModal />
   </article>
 </template>
 
 <style scoped>
+.mini-map-container {
+  width: 500px;
+  height: calc(500px * 3456 / 11376);
+  cursor: pointer;
+
+  svg {
+    cursor: pointer !important;
+    .mini-map-content {
+      transform: scale(calc(500 / 11376));
+      transform-origin: top left;
+    }
+  }
+
+  .mini-map-box div {
+    opacity: 0.15;
+  }
+}
 svg {
   cursor: grab;
   user-select: none;
@@ -1233,6 +1317,6 @@ svg {
 }
 button.btn.btn-link {
   font-size: 1.5em;
-  text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
+  text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
 }
 </style>
