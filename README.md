@@ -28,6 +28,14 @@ crisis_reimagined Admin will be available at `http://localhost:8080/admin/`
     # U.S. Web Design Standards
     docker exec -it crisis_reimagined_app python manage.py loaddata  admin_interface_theme_uswds.json
 
+### Import existing db
+
+    docker cp crisis_reimagined.sql crisis_reimagined_db:/crisis_reimagined.sql
+    docker exec -it crisis_reimagined_db bash
+
+        psql -U crisis_reimagined -X crisis_reimagined < /crisis_reimagined.sql
+        exit
+
 ### Create your superuser
 
     docker exec -it crisis_reimagined_app python manage.py createsuperuser
